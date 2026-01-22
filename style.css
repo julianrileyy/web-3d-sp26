@@ -1,3 +1,18 @@
-p {
+h1 {
 
+  font-family: "Coiny", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+h2 {
+     font-family: "Comic Relief", system-ui;
+  font-weight: 700;
+  font-style: normal;
+}
+
+h3 {
+   font-family: "Comic Relief", system-ui;
+  font-weight: 400;
+  font-style: normal;
 }
