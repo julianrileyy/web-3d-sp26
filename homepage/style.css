@@ -1,0 +1,25 @@
+h1{
+ 
+  font-family: "Coiny", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+h3{
+ 
+  font-family: "Coiny", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+a:link { color: hotpink; }    /* Unvisited */
+a:visited { color: rebeccapurple; } /* Visited */
+a:hover { color: white; }    /* Mouse over */
+a:active { color: silver; } /* Selected */
+
+h1{
+  color: rosybrown
+}
+
+h3{
+  color: rosybrown
+}
