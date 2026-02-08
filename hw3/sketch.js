@@ -3,7 +3,6 @@ function preload() {
  img = loadImage('caketexture.jpg');
 img2 = loadImage('insidetexture.png');
 }
-    
 function setup() {
     createCanvas(400,400, WEBGL);
 }
@@ -17,7 +16,6 @@ function draw() {
 //Bottom Layer
 push();
 translate(0,50,0); //positioning
-fill(245,222,179);
 noStroke();
  texture(img);
 cylinder(100,60); //radius,height
@@ -26,7 +24,6 @@ pop();
 //Top Layer
 push();
 translate(0,0,0);
-fill(255, 221, 202);
 noStroke();
 texture(img2);
 cylinder(70,60);
