@@ -1,3 +1,6 @@
+let img;
+function preload() {
+ img = loadImage('flower.jpg');}
 let lightColor;
 let rotateFlower = true;
 let rotationSpeed = 0.01;
@@ -53,6 +56,7 @@ function draw() {
   //Flower
   push();
   translate(0, -20, 0);
+  texture(img);
 
   if (rotateFlower) {
     rotateY(frameCount * rotationSpeed);
