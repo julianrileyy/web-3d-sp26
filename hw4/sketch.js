@@ -12,10 +12,6 @@ function setup() {
 
   lightColor = color(180, 220, 255);
 
-  // External Button
-  let toggleButton = createButton("Summon / Dismiss Celestial Plane");
-  toggleButton.position(10, 10);
-  toggleButton.mousePressed(toggleGround);
 }
 
 function draw() {
