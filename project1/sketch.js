@@ -1,6 +1,4 @@
-// =====================================
-// CELESTIAL MOOD GARDEN — FULL VERSION
-// =====================================
+
 
 let sliders = {};
 let moodHistory = [];
@@ -42,9 +40,9 @@ function draw() {
   }
 }
 
-// =====================================
+// 
 // BACKGROUND
-// =====================================
+// 
 
 function drawGradientSky() {
   for (let y = 0; y < height; y++) {
@@ -75,9 +73,9 @@ function drawStars() {
   }
 }
 
-// =====================================
-// MOOD SYSTEM
-// =====================================
+// 
+// MOODS
+//
 
 function createMoodSliders() {
   sliders.happiness = createSlider(0, 100, 50);
@@ -87,7 +85,7 @@ function createMoodSliders() {
 
   let i = 0;
   for (let key in sliders) {
-    sliders[key].position(40, 120 + i * 50);
+    sliders[key].position(40, 225 + i * 50);
     sliders[key].style("width", "220px");
     sliders[key].style("opacity", "0.8");
     i++;
@@ -96,11 +94,12 @@ function createMoodSliders() {
 
 function drawMoodLabels() {
   textSize(16);
+  textFont()
   fill(200, 220, 255);
-  text("Happiness", 40, 110);
-  text("Energy", 40, 160);
-  text("Anxiety", 40, 210);
-  text("Calm", 40, 260);
+  text("Happiness", 140, 90);
+  text("Energy", 140, 140);
+  text("Anxiety", 140, 190);
+  text("Calm", 140, 240);
 }
 
 function getMoodScore() {
@@ -111,9 +110,9 @@ function getMoodScore() {
   return (positive - negative) / 3;
 }
 
-// =====================================
+// 
 // GARDEN
-// =====================================
+//
 
 function drawGarden() {
   drawMoodLabels();
@@ -130,7 +129,7 @@ function drawGarden() {
   drawSucculent(vitality);
   drawTendingEffects();
 
-  // Boost decay
+  // Boost
   waterBoost *= 0.98;
   pruneBoost *= 0.98;
   sunBoost *= 0.98;
@@ -156,7 +155,7 @@ function drawSucculent(vitality) {
 
   let size = map(vitality, -100, 300, 60, 180, true);
 
-  // Aura glow
+  // glow
   fill(160, 200, 255, 80);
   ellipse(0, 0, size + sin(time*2)*15 + 60);
 
@@ -173,9 +172,9 @@ function drawSucculent(vitality) {
   pop();
 }
 
-// =====================================
-// TENDING EFFECTS
-// =====================================
+// 
+// TENDING
+// 
 
 function drawTendingEffects() {
 
@@ -205,9 +204,9 @@ function drawTendingEffects() {
   noStroke();
 }
 
-// =====================================
+//
 // UI
-// =====================================
+// 
 
 function drawUI() {
   fill(255);
@@ -256,9 +255,9 @@ function mousePressed() {
   }
 }
 
-// =====================================
+// 
 // DATA
-// =====================================
+// 
 
 function saveMood() {
   let entry = {
@@ -274,9 +273,9 @@ function loadData() {
   if (data) moodHistory = JSON.parse(data);
 }
 
-// =====================================
+// 
 // ANALYTICS
-// =====================================
+// 
 
 function drawConstellation() {
   background(10, 10, 40);
