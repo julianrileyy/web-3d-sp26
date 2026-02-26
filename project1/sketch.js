@@ -214,16 +214,16 @@ function drawUI() {
   textSize(18);
   text("Points: " + points, 820, 60);
 
-  drawSoftButton("Save Mood", 850, 120);
-  drawSoftButton("Analytics", 850, 170);
-
+  drawSoftButton("Meditate (+5)", 850, 110);
+  drawSoftButton("Hobby (+5)", 850, 160);
+  drawSoftButton("Shower (+5)", 850, 210);
   drawSoftButton("Journal (+5)", 850, 260);
   drawSoftButton("Hydrate (+5)", 850, 310);
 
   drawSoftButton("Water (+1)", 850, 380);
   drawSoftButton("Prune (+1)", 850, 430);
   drawSoftButton("Sunlight (+1)", 850, 480);
-  drawSoftButton("Fertilize (+1)", 850, 530);
+  drawSoftButton("Fertilize (+2)", 850, 530);
 }
 
 function drawSoftButton(label, x, y) {
@@ -236,10 +236,9 @@ function drawSoftButton(label, x, y) {
 }
 
 function mousePressed() {
-
-  if (dist(mouseX, mouseY, 850, 120) < 85) saveMood();
-  if (dist(mouseX, mouseY, 850, 170) < 85) screen = "analytics";
-
+  if (dist(mouseX, mouseY, 850, 110) < 85) points += 5;
+  if (dist(mouseX, mouseY, 850, 160) < 85) points += 5;
+  if (dist(mouseX, mouseY, 850, 210) < 85) points += 5;
   if (dist(mouseX, mouseY, 850, 260) < 85) points += 5;
   if (dist(mouseX, mouseY, 850, 310) < 85) points += 5;
 
@@ -248,12 +247,8 @@ function mousePressed() {
   if (dist(mouseX, mouseY, 850, 480) < 85) { points += 1; sunBoost += 12; }
   if (dist(mouseX, mouseY, 850, 530) < 85) { points += 1; bloomBoost += 15; }
 
-  if (screen === "analytics") {
-    analyticsMode =
-      analyticsMode === "constellation"
-      ? "calendar"
-      : "constellation";
-  }
+ 
+
 }
 
 // 
@@ -273,4 +268,5 @@ function loadData() {
   let data = localStorage.getItem("etherealMoodGarden");
   if (data) moodHistory = JSON.parse(data);
 }
+
 

@@ -5,7 +5,6 @@ h1 {
   font-family: "Flavors", cursive;
   font-weight: 400;
   font-style: normal;
-text-align: center;
 }
 
 
@@ -14,6 +13,12 @@ h3 {
   font-family: "Delius", cursive;
   font-weight: 400;
   font-style: normal;
-text-align: center;
 }
 
+h1 {
+ color:darkslategray
+}
+
+h3 {
+  color:darkslategray
+}
