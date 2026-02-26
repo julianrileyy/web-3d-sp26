@@ -17,6 +17,7 @@ let bloomBoost = 0;
 
 function setup() {
   createCanvas(1000, 650);
+  
   angleMode(DEGREES);
   loadData();
   createMoodSliders();
@@ -273,65 +274,3 @@ function loadData() {
   if (data) moodHistory = JSON.parse(data);
 }
 
-// 
-// ANALYTICS
-// 
-
-function drawConstellation() {
-  background(10, 10, 40);
-  fill(255);
-  textAlign(CENTER);
-  textSize(24);
-  text("Constellation View (Click to switch)", width/2, 60);
-
-  if (moodHistory.length < 2) return;
-
-  stroke(150,200,255);
-  noFill();
-  beginShape();
-  for (let i = 0; i < moodHistory.length; i++) {
-    let x = map(i, 0, moodHistory.length-1, 100, width-100);
-    let y = map(moodHistory[i].total, -100, 300, height-100, 150);
-    vertex(x,y);
-  }
-  endShape();
-}
-
-function drawCalendar() {
-  background(15, 10, 40);
-
-  fill(255);
-  textAlign(CENTER);
-  textSize(24);
-  text("Calendar View (Click to switch)", width/2, 60);
-
-  let cols = 7;
-  let size = 80;
-  let startX = 150;
-  let startY = 120;
-
-  for (let i = 0; i < moodHistory.length; i++) {
-    let col = i % cols;
-    let row = floor(i / cols);
-
-    let x = startX + col * (size + 10);
-    let y = startY + row * (size + 10);
-
-    let mood = moodHistory[i].total;
-    let glow = map(mood, -100, 300, 50, 255);
-
-    fill(120, 180, 255, glow);
-    rect(x, y, size, size, 15);
-
-    if (mouseX > x && mouseX < x + size &&
-        mouseY > y && mouseY < y + size) {
-      fill(255);
-      textSize(12);
-      text(moodHistory[i].date +
-           " | " +
-           nf(mood,1,1),
-           width/2,
-           height-50);
-    }
-  }
-}
