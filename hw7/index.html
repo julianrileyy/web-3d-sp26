@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hw7</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #100a06; overflow: hidden; }
+    canvas { display: block; }
+
+    #overlay {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, #1e1008 0%, #0b0604 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #c8a97e;
+      cursor: pointer;
+      z-index: 10;
+      transition: opacity 0.6s ease;
+    }
+    #overlay h1 {
+      font-family: 'Georgia', serif;
+      font-size: 3.2rem;
+      letter-spacing: 0.3em;
+      font-weight: normal;
+      margin-bottom: 0.5rem;
+      color: #d4b48a;
+      text-shadow: 0 0 40px rgba(200,140,60,0.3);
+    }
+    #overlay .sub {
+      font-family: 'Georgia', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      opacity: 0.5;
+      margin-bottom: 3rem;
+    }
+    #overlay .prompt {
+      font-family: 'Georgia', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      opacity: 0.6;
+      border: 1px solid rgba(200,169,126,0.25);
+      padding: 0.8rem 2rem;
+    }
+
+    #crosshair {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 18px; height: 18px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    #crosshair::before, #crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(255,255,255,0.55);
+    }
+    #crosshair::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
+    #crosshair::after  { width: 100%; height: 1px; top: 50%; transform: translateY(-50%); }
+
+    #hint {
+      position: fixed; bottom: 1.8rem; left: 50%;
+      transform: translateX(-50%);
+      color: rgba(200,169,126,0.4);
+      font-family: 'Georgia', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="overlay">
+    <h1>My Studio</h1>
+    <p class="sub">hw7/project2 prep</p>
+    <p class="prompt">CLICK TO ENTER</p>
+  </div>
+  <div id="crosshair"></div>
+  <div id="hint">W A S D &nbsp;·&nbsp; MOVE &nbsp;|&nbsp; MOUSE &nbsp;·&nbsp; LOOK &nbsp;|&nbsp; ESC &nbsp;·&nbsp; PAUSE</div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+    // render
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.78;
+    document.body.appendChild(renderer.domElement);
+
+    //  scene
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0e0805, 7, 18);
+    scene.background = new THREE.Color(0x0e0805);
+
+    // cam
+    const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.05, 40);
+    camera.position.set(0, 1.65, 3.6);
+
+    // cntrls
+    const controls = new PointerLockControls(camera, renderer.domElement);
+    scene.add(controls.object ?? camera);
+
+    const overlay   = document.getElementById('overlay');
+    const crosshair = document.getElementById('crosshair');
+    const hint      = document.getElementById('hint');
+
+    overlay.addEventListener('click', () => controls.lock());
+    controls.addEventListener('lock',   () => {
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+      crosshair.style.opacity = '1';
+      hint.style.opacity = '1';
+    });
+    controls.addEventListener('unlock', () => {
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'auto';
+      crosshair.style.opacity = '0';
+      hint.style.opacity = '0';
+    });
+
+    // movement
+    const keys = {};
+    document.addEventListener('keydown', e => keys[e.code] = true);
+    document.addEventListener('keyup',   e => keys[e.code] = false);
+
+    // materials
+    const M = {
+      floor:       new THREE.MeshStandardMaterial({ color: 0x292420, roughness: 0.98, metalness: 0 }),
+      wall:        new THREE.MeshStandardMaterial({ color: 0xab8f6a, roughness: 0.92, metalness: 0 }),
+      wallDark:    new THREE.MeshStandardMaterial({ color: 0x9a8060, roughness: 0.95, metalness: 0 }),
+      ceiling:     new THREE.MeshStandardMaterial({ color: 0xbdb09a, roughness: 0.88, metalness: 0 }),
+      wood:        new THREE.MeshStandardMaterial({ color: 0x6b3e1c, roughness: 0.88, metalness: 0.04 }),
+      woodLight:   new THREE.MeshStandardMaterial({ color: 0x8a5530, roughness: 0.82, metalness: 0.02 }),
+      metal:       new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.55, metalness: 0.75 }),
+      fabric:      new THREE.MeshStandardMaterial({ color: 0x35261a, roughness: 1.0,  metalness: 0 }),
+      lampBase:    new THREE.MeshStandardMaterial({ color: 0x231e1a, roughness: 0.45, metalness: 0.85 }),
+      lampShade:   new THREE.MeshStandardMaterial({ color: 0xc98c2e, roughness: 0.75, metalness: 0, side: THREE.DoubleSide, emissive: 0x7a4000, emissiveIntensity: 0.4 }),
+      bulb:        new THREE.MeshStandardMaterial({ color: 0xfff0b0, emissive: 0xffb040, emissiveIntensity: 3, roughness: 0.2 }),
+      glass:       new THREE.MeshStandardMaterial({ color: 0x90b8cc, roughness: 0.05, metalness: 0.15, transparent: true, opacity: 0.28 }),
+      sky:         new THREE.MeshStandardMaterial({ color: 0x7aa0bc, roughness: 1, emissive: 0x3a6080, emissiveIntensity: 0.55, side: THREE.FrontSide }),
+      winFrame:    new THREE.MeshStandardMaterial({ color: 0x7a6248, roughness: 0.9, metalness: 0 }),
+      baseboard:   new THREE.MeshStandardMaterial({ color: 0x7a6a50, roughness: 0.92, metalness: 0 }),
+      radiator:    new THREE.MeshStandardMaterial({ color: 0x383028, roughness: 0.65, metalness: 0.4 }),
+      rug:         new THREE.MeshStandardMaterial({ color: 0x4a2f24, roughness: 1.0, metalness: 0 }),
+      rugPattern:  new THREE.MeshStandardMaterial({ color: 0x2e1a12, roughness: 1.0, metalness: 0 }),
+      book1:       new THREE.MeshStandardMaterial({ color: 0x3a5c3a, roughness: 0.9 }),
+      book2:       new THREE.MeshStandardMaterial({ color: 0x5c3a2a, roughness: 0.9 }),
+      book3:       new THREE.MeshStandardMaterial({ color: 0x2a3a5c, roughness: 0.9 }),
+    };
+
+    // geometry misc
+    function box(w, h, d, mat, x, y, z, rx=0, ry=0, rz=0, shadow=true) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      m.position.set(x, y, z);
+      m.rotation.set(rx, ry, rz);
+      if (shadow) { m.castShadow = true; m.receiveShadow = true; }
+      scene.add(m);
+      return m;
+    }
+    function cyl(rt, rb, h, segs, mat, x, y, z, rx=0, ry=0, rz=0) {
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, segs), mat);
+      m.position.set(x, y, z);
+      m.rotation.set(rx, ry, rz);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      scene.add(m);
+      return m;
+    }
+    function cone(r, h, segs, mat, x, y, z, rx=0) {
+      const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, segs, 1, true), mat);
+      m.position.set(x, y, z);
+      m.rotation.x = rx;
+      m.castShadow = true;
+      scene.add(m);
+      return m;
+    }
+    function sphere(r, mat, x, y, z) {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 10), mat);
+      m.position.set(x, y, z);
+      m.castShadow = true;
+      scene.add(m);
+      return m;
+    }
+
+    // room
+    const RW=12, RD=10, RH=5;
+    const hw=RW/2, hd=RD/2;
+
+    // floor
+    box(RW, 0.05, RD, M.floor, 0, 0, 0, 0,0,0, false);
+
+    // ceiling
+    box(RW, 0.08, RD, M.ceiling, 0, RH, 0, 0,0,0, false);
+
+    // walls
+    box(0.08, RH, RD, M.wall,    -hw,   RH/2, 0);        // left
+    box(0.08, RH, RD, M.wallDark, hw,   RH/2, 0);        // right-ish
+    box(RW,   RH, 0.08, M.wall,   0,    RH/2, hd);       // front
+
+    // back wall (window)
+    // window
+    const wX1=-1.5, wX2=1.5, wY1=2.0, wY2=4.3;
+    const wW=wX2-wX1, wH=wY2-wY1;
+    box(hw+wX1,  RH,   0.08, M.wall,  (-hw+wX1)/2,       RH/2,        -hd); // left
+    box(hw-wX2,  RH,   0.08, M.wall,  (wX2+hw)/2,        RH/2,        -hd); // right
+    box(wW,      wY1,  0.08, M.wall,  0,                  wY1/2,       -hd); // below window
+    box(wW,      RH-wY2,0.08,M.wall,  0,                  (wY2+RH)/2,  -hd); // above window
+
+    // baseboard
+    box(RW,  0.14, 0.04, M.baseboard,  0,    0.07, hd-0.04);
+    box(0.04,0.14, RD,   M.baseboard, -hw+0.04, 0.07, 0);
+    box(0.04,0.14, RD,   M.baseboard,  hw-0.04, 0.07, 0);
+
+    // window
+    box(5.5, 4.5, 0.05, M.sky, 0, 3.2, -hd - 0.6, 0,0,0, false);
+
+    // glass
+    box(wW-0.1, wH-0.1, 0.04, M.glass, 0, (wY1+wY2)/2, -hd+0.06);
+
+    // window frame
+    const ft=0.08, wMY=(wY1+wY2)/2;
+    box(wW+ft*2, ft, 0.12, M.winFrame, 0,  wY2,  -hd+0.06);  // top
+    box(wW+ft*2, ft, 0.12, M.winFrame, 0,  wY1,  -hd+0.06);  // bottom
+    box(ft, wH,  0.12, M.winFrame, wX1, wMY, -hd+0.06);       // left
+    box(ft, wH,  0.12, M.winFrame, wX2, wMY, -hd+0.06);       // right
+    box(wW, ft,  0.09, M.winFrame, 0,  wMY, -hd+0.06);        // center H
+    box(ft, wH,  0.09, M.winFrame, 0,  wMY, -hd+0.06);        // center V 
+
+    // rug
+    box(3.5, 0.025, 2.8, M.rug,       0, 0.025, 1.0);
+    box(3.2, 0.03,  0.1, M.rugPattern, 0, 0.03, 2.3);   // border top
+    box(3.2, 0.03,  0.1, M.rugPattern, 0, 0.03,-0.3);   // border bottom
+    box(0.1, 0.03,  2.5, M.rugPattern,-1.65,0.03, 1.0); // border left
+    box(0.1, 0.03,  2.5, M.rugPattern, 1.65,0.03, 1.0); // border right
+
+    //  1 — desk 
+    const dX=0, dZ=-hd+0.62, dTopY=0.76;
+    const dW=2.65, dD=0.88;
+
+    // desktop
+    box(dW, 0.07, dD, M.wood, dX, dTopY, dZ);
+
+    // legs
+    const lx=dW/2-0.07, lz=dD/2-0.07;
+    box(0.065,dTopY-0.035,0.065, M.metal, dX-lx, (dTopY-0.035)/2, dZ-lz);
+    box(0.065,dTopY-0.035,0.065, M.metal, dX+lx, (dTopY-0.035)/2, dZ-lz);
+    box(0.065,dTopY-0.035,0.065, M.metal, dX-lx, (dTopY-0.035)/2, dZ+lz);
+    box(0.065,dTopY-0.035,0.065, M.metal, dX+lx, (dTopY-0.035)/2, dZ+lz);
+
+    // drawer
+    const drX=dX+dW/2-0.3;
+    box(0.58, 0.52, dD-0.08, M.woodLight, drX, dTopY-0.285, dZ-0.02);
+    // handles
+    cyl(0.014,0.014, 0.06, 8, M.metal, drX, dTopY-0.10, dZ+0.44, 0,0,Math.PI/2);
+    cyl(0.014,0.014, 0.06, 8, M.metal, drX, dTopY-0.26, dZ+0.44, 0,0,Math.PI/2);
+    cyl(0.014,0.014, 0.06, 8, M.metal, drX, dTopY-0.42, dZ+0.44, 0,0,Math.PI/2);
+
+    //  2 — desk hutch 
+    const hY=dTopY+0.035;
+    const hH=0.92, hD=0.38, hW=2.0;
+    const hZ=dZ - dD/2 + hD/2;
+
+    box(hW,  hH,   0.04, M.wood,      dX,      hY+hH/2, hZ-hD/2);   // back 
+    box(0.04,hH,   hD,   M.wood,      dX-hW/2, hY+hH/2, hZ);        // left
+    box(0.04,hH,   hD,   M.wood,      dX+hW/2, hY+hH/2, hZ);        // right
+    box(hW,  0.04, hD,   M.wood,      dX,      hY+hH,   hZ);         // top
+    box(hW,  0.04, hD,   M.woodLight, dX,      hY+hH*0.48, hZ);      // mid shelf
+    box(0.04,hH*0.48,hD, M.woodLight, dX-hW*0.3, hY+hH*0.24, hZ);   // left divider
+    box(0.04,hH*0.48,hD, M.woodLight, dX+hW*0.3, hY+hH*0.24, hZ);   // right divider
+
+    // books
+    const bookY = hY+hH*0.48+0.02;
+    box(0.06,0.20,0.30, M.book1, dX-0.75, bookY+0.10, hZ);
+    box(0.05,0.18,0.30, M.book2, dX-0.68, bookY+0.09, hZ);
+    box(0.07,0.22,0.30, M.book3, dX-0.60, bookY+0.11, hZ);
+
+    // 3 - lamp
+    const lpX=dX-0.82, lpZ=dZ+0.15, lpBase=dTopY+0.035;
+
+    cyl(0.13,0.15,0.035,16, M.lampBase, lpX, lpBase+0.018, lpZ);          //  base
+    cyl(0.018,0.018,0.52,8,  M.lampBase, lpX, lpBase+0.278, lpZ);          // stem
+    box(0.18,0.018,0.018, M.lampBase, lpX+0.09, lpBase+0.54+0.009, lpZ, 0,0,-0.35); // arm
+    cone(0.21,0.26,16, M.lampShade, lpX+0.18, lpBase+0.54+0.15, lpZ, Math.PI);      // shade
+    sphere(0.03, M.bulb, lpX+0.18, lpBase+0.54+0.04, lpZ);                          // bulb
+
+    // 4 - chair
+    const cX=dX+0.25, cZ=dZ+1.0, cSY=0.46;
+
+    box(0.52,0.055,0.52, M.wood,   cX, cSY,       cZ);           // seat frame
+    box(0.44,0.055,0.44, M.fabric, cX, cSY+0.055, cZ);           // cushion
+    box(0.50,0.50, 0.05, M.wood,   cX, cSY+0.295, cZ-0.24);      // back
+    box(0.50,0.04, 0.04, M.woodLight, cX, cSY+0.52, cZ-0.24);    // top rail
+
+    // legs
+    const cLH=cSY-0.025;
+    box(0.04,cLH,0.04, M.wood, cX-0.22, cLH/2, cZ-0.22);
+    box(0.04,cLH,0.04, M.wood, cX+0.22, cLH/2, cZ-0.22);
+    box(0.04,cLH,0.04, M.wood, cX-0.22, cLH/2, cZ+0.22);
+    box(0.04,cLH,0.04, M.wood, cX+0.22, cLH/2, cZ+0.22);
+    // Stretcher brace
+    box(0.44,0.025,0.025, M.woodLight, cX, 0.22, cZ+0.22);
+
+    // 5 - radiator
+    const rX=-hw+0.18, rZ=-0.8, rH=0.78, rD=0.92;
+
+    box(0.10,rH,rD, M.radiator, rX, rH/2, rZ);  // back body
+    for (let i=0;i<6;i++) {
+      box(0.045, rH-0.08, rD-0.06, M.radiator, rX+0.055+i*0.06, rH/2, rZ);
+    }
+    box(0.10+6*0.06+0.045, 0.045, rD, M.radiator, rX+(6*0.06)/2+0.03, rH+0.02, rZ); // top rail
+    box(0.08,0.04,0.15, M.radiator, rX, 0.02, rZ-rD/2+0.1); // foot L
+    box(0.08,0.04,0.15, M.radiator, rX, 0.02, rZ+rD/2-0.1); // foot R
+
+    // lights
+    const ambient = new THREE.AmbientLight(0x3a2010, 0.45);
+    scene.add(ambient);
+
+    const lampPt = new THREE.PointLight(0xffaa44, 4.2, 5.5, 1.8);
+    lampPt.position.set(lpX+0.18, lpBase+0.56, lpZ);
+    lampPt.castShadow = true;
+    lampPt.shadow.mapSize.set(512,512);
+    lampPt.shadow.bias = -0.001;
+    scene.add(lampPt);
+
+    const winDir = new THREE.DirectionalLight(0x90b8d4, 0.55);
+    winDir.position.set(0, 5, -9);
+    winDir.target.position.set(0.5, 1.2, 0);
+    scene.add(winDir, winDir.target);
+
+    const fill = new THREE.PointLight(0x5a4028, 0.5, 14, 1.5);
+    fill.position.set(0, 4.7, 0);
+    scene.add(fill);
+
+    const radGlow = new THREE.PointLight(0xff5520, 0.18, 1.8, 2.5);
+    radGlow.position.set(rX+0.2, rH*0.5, rZ);
+    scene.add(radGlow);
+
+    // ani loops
+    const clock    = new THREE.Clock();
+    const velocity = new THREE.Vector3();
+    const SPEED    = 3.8;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+      const t  = clock.getElapsedTime();
+
+      // lamp flicker
+      lampPt.intensity = 4.2 + Math.sin(t * 53) * 0.06
+        + Math.sin(t * 31) * 0.04
+        + (Math.random() < 0.003 ? -1.2 : 0);
+
+      if (controls.isLocked) {
+        velocity.x -= velocity.x * 9 * dt;
+        velocity.z -= velocity.z * 9 * dt;
+
+        const fwd = (keys['KeyW'] ? 1 : 0) - (keys['KeyS'] ? 1 : 0);
+        const str = (keys['KeyD'] ? 1 : 0) - (keys['KeyA'] ? 1 : 0);
+
+        if (fwd !== 0) velocity.z -= fwd * SPEED * dt * 10;
+        if (str !== 0) velocity.x -= str * SPEED * dt * 10;
+
+        controls.moveForward(-velocity.z * dt);
+        controls.moveRight  (-velocity.x * dt);
+
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -hw+0.35, hw-0.35);
+        camera.position.z = THREE.MathUtils.clamp(camera.position.z, -hd+0.45, hd-0.25);
+        camera.position.y = 1.65;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+  </script>
+</body>
+</html>
