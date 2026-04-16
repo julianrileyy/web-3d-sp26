@@ -1,8 +1,607 @@
+
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Title</title>
-    </head>
-    <body></body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Project 2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #100a06; overflow: hidden; }
+    canvas { display: block; }
+
+    #overlay {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, #1e1008 0%, #0b0604 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #c8a97e;
+      cursor: pointer;
+      z-index: 10;
+      transition: opacity 0.6s ease;
+    }
+    #overlay h1 {
+      font-family: 'Georgia', serif;
+      font-size: 3.2rem;
+      letter-spacing: 0.3em;
+      font-weight: normal;
+      margin-bottom: 0.5rem;
+      color: #d4b48a;
+      text-shadow: 0 0 40px rgba(200,140,60,0.3);
+    }
+    #overlay .sub {
+      font-family: 'Georgia', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      opacity: 0.5;
+      margin-bottom: 3rem;
+    }
+    #overlay .prompt {
+      font-family: 'Georgia', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      opacity: 0.6;
+      border: 1px solid rgba(200,169,126,0.25);
+      padding: 0.8rem 2rem;
+    }
+
+    #crosshair {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 18px; height: 18px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    #crosshair::before, #crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(255,255,255,0.55);
+    }
+    #crosshair::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
+    #crosshair::after  { width: 100%; height: 1px; top: 50%; transform: translateY(-50%); }
+
+    #hint {
+      position: fixed; bottom: 1.8rem; left: 50%;
+      transform: translateX(-50%);
+      color: rgba(200,169,126,0.4);
+      font-family: 'Georgia', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #door-hint {
+      position: fixed; bottom: 3.5rem; right: 2rem;
+      color: rgba(200,169,126,0.35);
+      font-family: 'Georgia', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="overlay">
+    <h1>Project 2</h1>
+    <p class="sub">Room of curiosity</p>
+    <p class="prompt">CLICK TO ENTER</p>
+  </div>
+  <div id="crosshair"></div>
+  <div id="hint">W A S D &nbsp;·&nbsp; MOVE &nbsp;|&nbsp; MOUSE &nbsp;·&nbsp; LOOK &nbsp;|&nbsp; ESC &nbsp;·&nbsp; PAUSE</div>
+  <div id="door-hint">EXIT &nbsp;→&nbsp; FRONT RIGHT</div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    //renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.78;
+    document.body.appendChild(renderer.domElement);
+
+    // cam
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0e0805, 7, 20);
+    scene.background = new THREE.Color(0x0e0805);
+
+    const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.05, 40);
+    camera.position.set(0, 1.65, 3.6);
+
+    // cntrls
+    const controls = new PointerLockControls(camera, renderer.domElement);
+    scene.add(controls.object ?? camera);
+
+    const overlay   = document.getElementById('overlay');
+    const crosshair = document.getElementById('crosshair');
+    const hint      = document.getElementById('hint');
+    const doorHint  = document.getElementById('door-hint');
+
+    overlay.addEventListener('click', () => controls.lock());
+    controls.addEventListener('lock', () => {
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+      crosshair.style.opacity = '1';
+      hint.style.opacity = '1';
+      doorHint.style.opacity = '1';
+    });
+    controls.addEventListener('unlock', () => {
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'auto';
+      crosshair.style.opacity = '0';
+      hint.style.opacity = '0';
+      doorHint.style.opacity = '0';
+    });
+
+    const keys = {};
+    document.addEventListener('keydown', e => keys[e.code] = true);
+    document.addEventListener('keyup',   e => keys[e.code] = false);
+
+    // loaders
+   // const gltfLoader = new GLTFLoader();
+    const texLoader  = new THREE.TextureLoader();
+   import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+const loader = new OBJLoader();
+
+
+    function loadModel(path, x, y, z, scale = 1.0, ry = 0, rx = 0) {
+      gltfLoader.load(
+        path, 
+        (gltf) => {
+          const model = gltf.scene;
+          model.position.set(x, y, z);
+          model.scale.setScalar(scale);
+          model.rotation.set(rx, ry, 0);
+          model.traverse(c => {
+            if (c.isMesh) {
+              c.castShadow = true;
+              c.receiveShadow = true;
+            }
+          });
+          scene.add(model);
+        },
+        undefined,
+        (err) => console.warn(`Could not load model: ${path}`, err)
+      );
+    }
+
+    // materials
+    const M = {
+      floor:      new THREE.MeshStandardMaterial({ color: 0x292420, roughness: 0.98, metalness: 0 }),
+      wall:       new THREE.MeshStandardMaterial({ color: 0xab8f6a, roughness: 0.92, metalness: 0 }),
+      wallDark:   new THREE.MeshStandardMaterial({ color: 0x9a8060, roughness: 0.95, metalness: 0 }),
+      ceiling:    new THREE.MeshStandardMaterial({ color: 0xbdb09a, roughness: 0.88, metalness: 0 }),
+      wood:       new THREE.MeshStandardMaterial({ color: 0x6b3e1c, roughness: 0.88, metalness: 0.04 }),
+      woodLight:  new THREE.MeshStandardMaterial({ color: 0x8a5530, roughness: 0.82, metalness: 0.02 }),
+      metal:      new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.55, metalness: 0.75 }),
+      fabric:     new THREE.MeshStandardMaterial({ color: 0x35261a, roughness: 1.0,  metalness: 0 }),
+      lampBase:   new THREE.MeshStandardMaterial({ color: 0x231e1a, roughness: 0.45, metalness: 0.85 }),
+      lampShade:  new THREE.MeshStandardMaterial({
+                    color: 0xc98c2e, roughness: 0.75, metalness: 0,
+                    side: THREE.DoubleSide, emissive: 0x7a4000, emissiveIntensity: 0.4
+                  }),
+      bulb:       new THREE.MeshStandardMaterial({ color: 0xfff0b0, emissive: 0xffb040, emissiveIntensity: 3, roughness: 0.2 }),
+      glass:      new THREE.MeshStandardMaterial({ color: 0x90b8cc, roughness: 0.05, metalness: 0.15, transparent: true, opacity: 0.28 }),
+      sky:        new THREE.MeshStandardMaterial({ color: 0x7aa0bc, roughness: 1, emissive: 0x3a6080, emissiveIntensity: 0.55, side: THREE.FrontSide }),
+      winFrame:   new THREE.MeshStandardMaterial({ color: 0x7a6248, roughness: 0.9, metalness: 0 }),
+      baseboard:  new THREE.MeshStandardMaterial({ color: 0x7a6a50, roughness: 0.92, metalness: 0 }),
+      radiator:   new THREE.MeshStandardMaterial({ color: 0x383028, roughness: 0.65, metalness: 0.4 }),
+      rug:        new THREE.MeshStandardMaterial({ color: 0x4a2f24, roughness: 1.0, metalness: 0 }),
+      rugPattern: new THREE.MeshStandardMaterial({ color: 0x2e1a12, roughness: 1.0, metalness: 0 }),
+      book1:      new THREE.MeshStandardMaterial({ color: 0x3a5c3a, roughness: 0.9 }),
+      book2:      new THREE.MeshStandardMaterial({ color: 0x5c3a2a, roughness: 0.9 }),
+      book3:      new THREE.MeshStandardMaterial({ color: 0x2a3a5c, roughness: 0.9 }),
+      doorFrame:  new THREE.MeshStandardMaterial({ color: 0x7a6a50, roughness: 0.88, metalness: 0 }),
+      voidFloor:  new THREE.MeshStandardMaterial({ color: 0x080504, roughness: 1.0, metalness: 0 }),
+    };
+
+    // misc geometry
+    function box(w, h, d, mat, x, y, z, rx=0, ry=0, rz=0, shadow=true) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      m.position.set(x, y, z);
+      m.rotation.set(rx, ry, rz);
+      if (shadow) { m.castShadow = true; m.receiveShadow = true; }
+      scene.add(m);
+      return m;
+    }
+    function cyl(rt, rb, h, segs, mat, x, y, z, rx=0, ry=0, rz=0) {
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, segs), mat);
+      m.position.set(x, y, z);
+      m.rotation.set(rx, ry, rz);
+      m.castShadow = true; m.receiveShadow = true;
+      scene.add(m); return m;
+    }
+    function cone(r, h, segs, mat, x, y, z, rx=0) {
+      const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, segs, 1, true), mat);
+      m.position.set(x, y, z);
+      m.rotation.x = rx;
+      m.castShadow = true;
+      scene.add(m); return m;
+    }
+    function sphere(r, mat, x, y, z) {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 10), mat);
+      m.position.set(x, y, z);
+      m.castShadow = true;
+      scene.add(m); return m;
+    }
+
+    // room
+    const RW = 12, RD = 10, RH = 5;
+    const hw = RW / 2, hd = RD / 2;   // half-extents: hw=6, hd=5
+
+    // floor/ceiling
+    box(RW, 0.05, RD, M.floor,   0, 0,  0, 0,0,0, false);
+    box(RW, 0.08, RD, M.ceiling, 0, RH, 0, 0,0,0, false);
+
+    // photo wall
+    box(0.08, RH, RD, M.wall,    -hw, RH/2, 0);
+
+    // right wall
+    box(0.08, RH, RD, M.wallDark, hw, RH/2, 0);
+
+    // back wall
+    const wX1=-1.5, wX2=1.5, wY1=2.0, wY2=4.3;
+    const wW = wX2-wX1, wH = wY2-wY1;
+
+    box(hw + wX1,  RH,        0.08, M.wall, (-hw + wX1)/2,  RH/2,        -hd);  // left of window
+    box(hw - wX2,  RH,        0.08, M.wall, (wX2 + hw)/2,   RH/2,        -hd);  // right of window
+    box(wW,        wY1,       0.08, M.wall, 0,               wY1/2,       -hd);  // below window
+    box(wW,        RH - wY2,  0.08, M.wall, 0,               (wY2+RH)/2,  -hd);  // above window
+
+    // sky
+    box(5.5, 4.5, 0.05, M.sky, 0, 3.2, -hd - 0.6, 0,0,0, false);
+
+    // window glass
+    box(wW-0.1, wH-0.1, 0.04, M.glass, 0, (wY1+wY2)/2, -hd+0.06);
+
+    // window frame
+    const ft = 0.08, wMY = (wY1+wY2)/2;
+    box(wW + ft*2, ft, 0.12, M.winFrame, 0,   wY2,  -hd+0.06);  // top
+    box(wW + ft*2, ft, 0.12, M.winFrame, 0,   wY1,  -hd+0.06);  // bottom
+    box(ft, wH, 0.12, M.winFrame, wX1, wMY, -hd+0.06);          // left jamb
+    box(ft, wH, 0.12, M.winFrame, wX2, wMY, -hd+0.06);          // right jamb
+    box(wW, ft, 0.09, M.winFrame, 0,   wMY, -hd+0.06);          // center h-bar
+    box(ft, wH, 0.09, M.winFrame, 0,   wMY, -hd+0.06);          // center v-bar
+
+    // exit door
+    const doorCX  = 3.8;
+    const doorW   = 1.2;
+    const doorH   = 2.35;
+    const doorL   = doorCX - doorW / 2;   //  3.2
+    const doorR   = doorCX + doorW / 2;   //  4.4
+
+    // wall left of door
+    const seg1W = doorL - (-hw);          //  3.2 + 6 = 9.2
+    box(seg1W, RH, 0.08, M.wall, (-hw + doorL) / 2, RH/2, hd);
+
+    // wall right of door
+    const seg2W = hw - doorR;             //  6 - 4.4 = 1.6
+    box(seg2W, RH, 0.08, M.wall, (doorR + hw) / 2, RH/2, hd);
+
+    // wall above door
+    box(doorW, RH - doorH, 0.08, M.wall, doorCX, (doorH + RH) / 2, hd);
+
+    // door frame trim
+    const df = 0.07;
+    box(df, doorH, 0.1, M.doorFrame, doorL  - df/2, doorH/2, hd);   // left jamb
+    box(df, doorH, 0.1, M.doorFrame, doorR  + df/2, doorH/2, hd);   // right jamb
+    box(doorW + df*2, df, 0.1, M.doorFrame, doorCX, doorH + df/2, hd); // header
+
+    // door step
+    box(doorW, 0.05, 3.0, M.voidFloor, doorCX, 0, hd + 1.5, 0,0,0, false);
+
+    //baseboards
+    box(0.04, 0.14, RD,   M.baseboard, -hw+0.04, 0.07,  0);
+    box(0.04, 0.14, RD,   M.baseboard,  hw-0.04, 0.07,  0);
+    box(RW,   0.14, 0.04, M.baseboard, 0, 0.07, -hd+0.04);
+
+    // rug
+    box(3.5, 0.025, 2.8, M.rug,        0,    0.025, 1.0);
+    box(3.2, 0.030, 0.1, M.rugPattern, 0,    0.030, 2.35);   // border top
+    box(3.2, 0.030, 0.1, M.rugPattern, 0,    0.030,-0.30);   // border bottom
+    box(0.1, 0.030, 2.5, M.rugPattern,-1.65, 0.030, 1.0);    // border left
+    box(0.1, 0.030, 2.5, M.rugPattern, 1.65, 0.030, 1.0);    // border right
+
+    // desk
+    const dX = 0, dZ = -hd + 0.62, dTopY = 0.76;
+    const dW = 2.65, dD = 0.88;
+
+    // surface
+    box(dW, 0.07, dD, M.wood, dX, dTopY, dZ);
+
+    // legs
+    const lx = dW/2 - 0.07, lz = dD/2 - 0.07;
+    box(0.065, dTopY-0.035, 0.065, M.metal, dX-lx, (dTopY-0.035)/2, dZ-lz);
+    box(0.065, dTopY-0.035, 0.065, M.metal, dX+lx, (dTopY-0.035)/2, dZ-lz);
+    box(0.065, dTopY-0.035, 0.065, M.metal, dX-lx, (dTopY-0.035)/2, dZ+lz);
+    box(0.065, dTopY-0.035, 0.065, M.metal, dX+lx, (dTopY-0.035)/2, dZ+lz);
+
+    // drawers
+    const drX = dX + dW/2 - 0.3;
+    box(0.58, 0.52, dD-0.08, M.woodLight, drX, dTopY-0.285, dZ-0.02);
+    cyl(0.014,0.014,0.06,8, M.metal, drX, dTopY-0.10, dZ+0.44, 0,0,Math.PI/2);
+    cyl(0.014,0.014,0.06,8, M.metal, drX, dTopY-0.26, dZ+0.44, 0,0,Math.PI/2);
+    cyl(0.014,0.014,0.06,8, M.metal, drX, dTopY-0.42, dZ+0.44, 0,0,Math.PI/2);
+
+    // desk shelf
+    const hY=dTopY+0.035, hH=0.92, hD=0.38, hW=2.0;
+    const hZ = dZ - dD/2 + hD/2;
+    box(hW,  hH,         0.04, M.wood,      dX,         hY+hH/2,    hZ-hD/2);
+    box(0.04,hH,         hD,   M.wood,      dX-hW/2,    hY+hH/2,    hZ);
+    box(0.04,hH,         hD,   M.wood,      dX+hW/2,    hY+hH/2,    hZ);
+    box(hW,  0.04,       hD,   M.wood,      dX,         hY+hH,      hZ);
+    box(hW,  0.04,       hD,   M.woodLight, dX,         hY+hH*0.48, hZ);
+    box(0.04,hH*0.48,    hD,   M.woodLight, dX-hW*0.30, hY+hH*0.24, hZ);
+    box(0.04,hH*0.48,    hD,   M.woodLight, dX+hW*0.30, hY+hH*0.24, hZ);
+
+    // books
+    const bookY = hY + hH*0.48 + 0.02;
+    box(0.06,0.20,0.30, M.book1, dX-0.75, bookY+0.10, hZ);
+    box(0.05,0.18,0.30, M.book2, dX-0.68, bookY+0.09, hZ);
+    box(0.07,0.22,0.30, M.book3, dX-0.60, bookY+0.11, hZ);
+
+    // lamp
+    const lpX = dX - 0.82, lpZ = dZ + 0.15, lpBase = dTopY + 0.035;
+    cyl(0.13,0.15,0.035,16, M.lampBase, lpX, lpBase+0.018, lpZ);
+    cyl(0.018,0.018,0.52,8,  M.lampBase, lpX, lpBase+0.278, lpZ);
+    box(0.18,0.018,0.018, M.lampBase, lpX+0.09, lpBase+0.549, lpZ, 0,0,-0.35);
+    cone(0.21,0.26,16, M.lampShade, lpX+0.18, lpBase+0.69, lpZ, Math.PI);
+    sphere(0.03, M.bulb, lpX+0.18, lpBase+0.58, lpZ);
+
+    // chair
+    const cX = dX + 0.25, cZ = dZ + 1.0, cSY = 0.46;
+    box(0.52,0.055,0.52, M.wood,      cX, cSY,         cZ);
+    box(0.44,0.055,0.44, M.fabric,    cX, cSY+0.055,   cZ);
+    box(0.50,0.50, 0.05, M.wood,      cX, cSY+0.295,   cZ-0.24);
+    box(0.50,0.04, 0.04, M.woodLight, cX, cSY+0.52,    cZ-0.24);
+    const cLH = cSY - 0.025;
+    box(0.04,cLH,0.04, M.wood, cX-0.22, cLH/2, cZ-0.22);
+    box(0.04,cLH,0.04, M.wood, cX+0.22, cLH/2, cZ-0.22);
+    box(0.04,cLH,0.04, M.wood, cX-0.22, cLH/2, cZ+0.22);
+    box(0.04,cLH,0.04, M.wood, cX+0.22, cLH/2, cZ+0.22);
+    box(0.44,0.025,0.025, M.woodLight, cX, 0.22, cZ+0.22);
+
+    //radiator
+    const rX = -hw+0.18, rZ = -0.8, rH = 0.78, rD = 0.92;
+    box(0.10, rH, rD, M.radiator, rX, rH/2, rZ);
+    for (let i = 0; i < 6; i++) {
+      box(0.045, rH-0.08, rD-0.06, M.radiator, rX+0.055+i*0.06, rH/2, rZ);
+    }
+    box(0.10+6*0.06+0.045, 0.045, rD, M.radiator, rX+(6*0.06)/2+0.03, rH+0.02, rZ);
+    box(0.08,0.04,0.15, M.radiator, rX, 0.02, rZ-rD/2+0.1);
+    box(0.08,0.04,0.15, M.radiator, rX, 0.02, rZ+rD/2-0.1);
+
+    // lights
+    scene.add(new THREE.AmbientLight(0x3a2010, 0.45));
+
+    const lampPt = new THREE.PointLight(0xffaa44, 4.2, 5.5, 1.8);
+    lampPt.position.set(lpX+0.18, lpBase+0.60, lpZ);
+    lampPt.castShadow = true;
+    lampPt.shadow.mapSize.set(512, 512);
+    lampPt.shadow.bias = -0.001;
+    scene.add(lampPt);
+
+    const winDir = new THREE.DirectionalLight(0x90b8d4, 0.55);
+    winDir.position.set(0, 5, -9);
+    winDir.target.position.set(0.5, 1.2, 0);
+    scene.add(winDir, winDir.target);
+
+    const fill = new THREE.PointLight(0x5a4028, 0.5, 14, 1.5);
+    fill.position.set(0, 4.7, 0);
+    scene.add(fill);
+
+    const radGlow = new THREE.PointLight(0xff5520, 0.18, 1.8, 2.5);
+    radGlow.position.set(rX+0.2, rH*0.5, rZ);
+    scene.add(radGlow);
+
+    // light near gallery wall 
+    const galleryLight = new THREE.PointLight(0xd4a06a, 1.2, 7.0, 1.6);
+    galleryLight.position.set(-hw + 1.5, 3.5, -1.0);
+    scene.add(galleryLight);
+
+    // models
+
+    // ipad
+    loadModel(
+      'tablet.obj',
+      dX + 0.55,      // x — right-center of desk
+      dTopY + 0.04,   // y — just above desk surface
+      dZ,             // z — same depth as desk center
+      0.35,           // scale 
+      0               // rotation y
+    );
+
+    // blinds
+    loadModel(
+      'window blinds.obj',
+      0,                  // x — centered on window
+      (wY1 + wY2) / 2,   // y — vertical center of window ≈ 3.15
+      -hd + 0.08,         // z — just inside back wall
+      1.0,                // scale
+      0
+    );
+
+    // easel
+    loadModel(
+      'easel.obj',
+      -2.2,           // x — left of center
+      0,              // y — floor level
+      1.6,            // z — middle of room
+      1.0,            // scale
+      Math.PI * 0.08  // ry — slight angle 
+    );
+
+    // wooden floor crate
+    loadModel(
+      'Crate.obj',
+      2.5,            // x — right side of room
+      0,              // y — floor level
+      -2.5,           // z — roughly beside desk
+      0.75,           // scale 
+      Math.PI * 0.12  // ry — slightly rotated
+    );
+
+
+    //frame layout
+    const galleryFrames = [
+      { z: -3.0, y: 3.1 },   // frame 1 — upper row, far back
+      { z: -1.1, y: 3.1 },   // frame 2 — upper row, center
+      { z:  0.8, y: 3.1 },   // frame 3 — upper row, front
+      { z: -2.0, y: 1.75 },  // frame 4 — lower row, back
+      { z: -0.2, y: 1.75 },  // frame 5 — lower row, front
+    ];
+
+    const imageFiles = [
+      'image1.jpg',
+      'image2.jpg',
+      'image3.jpg',
+      'image4.jpg',
+      'image5.jpg',
+    ];
+
+    // image dimensions
+    const imgW = 0.52, imgH = 0.40;
+
+
+loader.load(
+      'frame.obj',
+      //(gltf) => {
+        galleryFrames.forEach((pos, i) => {
+         
+          const frame = gltf.scene.clone(true);
+          frame.position.set(-hw + 0.08, pos.y, pos.z);
+          frame.rotation.y = Math.PI / 2;   
+          frame.scale.setScalar(0.5);       
+          frame.traverse(c => {
+            if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
+          });
+          scene.add(frame);
+
+         
+          const tex = texLoader.load(imageFiles[i]);
+          const imgMat = new THREE.MeshStandardMaterial({
+            map: tex, roughness: 0.85, metalness: 0
+          });
+          const imgMesh = new THREE.Mesh(new THREE.PlaneGeometry(imgW, imgH), imgMat);
+          imgMesh.position.set(-hw + 0.14, pos.y, pos.z);
+          imgMesh.rotation.y = Math.PI / 2;
+          scene.add(imgMesh);
+        });
+      },
+      undefined,
+      // fallback
+      (err) => {
+        console.warn('framemockup.glb failed to load — using fallback frame geometry', err);
+        galleryFrames.forEach((pos, i) => {
+          // frame
+          const bdrMat = new THREE.MeshStandardMaterial({ color: 0x5c4428, roughness: 0.88 });
+          const fw = imgW + 0.06, fh = imgH + 0.06, fd = 0.03;
+          const fx = -hw + 0.06;
+          // border
+          box(fd, fh + 0.06, 0.03, bdrMat, fx, pos.y, pos.z - fw/2, 0, Math.PI/2);
+          box(fd, fh + 0.06, 0.03, bdrMat, fx, pos.y, pos.z + fw/2, 0, Math.PI/2);
+          box(fd, 0.04,       fw,   bdrMat, fx, pos.y + fh/2, pos.z, 0, Math.PI/2);
+          box(fd, 0.04,       fw,   bdrMat, fx, pos.y - fh/2, pos.z, 0, Math.PI/2);
+
+          const tex = texLoader.load(imageFiles[i]);
+          const imgMat = new THREE.MeshStandardMaterial({
+            map: tex, roughness: 0.85, metalness: 0
+          });
+          const imgMesh = new THREE.Mesh(new THREE.PlaneGeometry(imgW, imgH), imgMat);
+          imgMesh.position.set(-hw + 0.10, pos.y, pos.z);
+          imgMesh.rotation.y = Math.PI / 2;
+          scene.add(imgMesh);
+        });
+      }
+    );
+
+  
+    const exitTex = texLoader.load('Armory-entrance.jpg');
+    const exitMat = new THREE.MeshStandardMaterial({
+      map: exitTex,
+      roughness: 1.0,
+      emissive: 0x0a0806,
+      emissiveIntensity: 0.15,
+      side: THREE.DoubleSide
+    });
+    const exitPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(doorW * 1.6, doorH * 1.5),
+      exitMat
+    );
+    exitPlane.position.set(doorCX, doorH * 0.5, hd + 2.2);
+    exitPlane.rotation.y = Math.PI;  
+    scene.add(exitPlane);
+
+    //  ani loops
+   
+    const clock    = new THREE.Clock();
+    const velocity = new THREE.Vector3();
+    const SPEED    = 3.8;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+      const t  = clock.getElapsedTime();
+
+      // lamp flicker
+      lampPt.intensity = 4.2
+        + Math.sin(t * 53) * 0.06
+        + Math.sin(t * 31) * 0.04
+        + (Math.random() < 0.003 ? -1.2 : 0);
+
+      if (controls.isLocked) {
+        velocity.x -= velocity.x * 9 * dt;
+        velocity.z -= velocity.z * 9 * dt;
+
+        const fwd = (keys['KeyW'] ? 1 : 0) - (keys['KeyS'] ? 1 : 0);
+        const str = (keys['KeyD'] ? 1 : 0) - (keys['KeyA'] ? 1 : 0);
+
+        if (fwd !== 0) velocity.z -= fwd * SPEED * dt * 10;
+        if (str !== 0) velocity.x -= str * SPEED * dt * 10;
+
+        controls.moveForward(-velocity.z * dt);
+        controls.moveRight  (-velocity.x * dt);
+
+        // room bounds
+        const nearDoor = Math.abs(camera.position.x - doorCX) < doorW / 2 + 0.3;
+
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, -hw + 0.35, hw - 0.35);
+        camera.position.z = THREE.MathUtils.clamp(
+          camera.position.z,
+          -hd + 0.45,
+          nearDoor ? hd + 6.0 : hd - 0.25   // exit door
+        );
+        camera.position.y = 1.65;
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+  </script>
+</body>
 </html>
