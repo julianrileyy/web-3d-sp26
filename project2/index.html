@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,18 +104,19 @@
   </script>
 
   <script type="module">
+    
     import * as THREE from 'three';
     import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
-    //renderer
+    // renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(innerWidth, innerHeight);
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.78;
+    renderer.toneMappingExposure = 1.1;   // brighter overall exposure (was 0.78)
     document.body.appendChild(renderer.domElement);
 
     // cam
@@ -127,7 +127,7 @@
     const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.05, 40);
     camera.position.set(0, 1.65, 3.6);
 
-    // cntrls
+    // controls
     const controls = new PointerLockControls(camera, renderer.domElement);
     scene.add(controls.object ?? camera);
 
@@ -157,27 +157,23 @@
     document.addEventListener('keyup',   e => keys[e.code] = false);
 
     // loaders
-   // const gltfLoader = new GLTFLoader();
-    const texLoader  = new THREE.TextureLoader();
-   import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-const loader = new OBJLoader();
-
+    const objLoader = new OBJLoader();
+    const texLoader = new THREE.TextureLoader();
 
     function loadModel(path, x, y, z, scale = 1.0, ry = 0, rx = 0) {
-      gltfLoader.load(
-        path, 
-        (gltf) => {
-          const model = gltf.scene;
-          model.position.set(x, y, z);
-          model.scale.setScalar(scale);
-          model.rotation.set(rx, ry, 0);
-          model.traverse(c => {
+      objLoader.load(
+        path,
+        (object) => {
+          object.position.set(x, y, z);
+          object.scale.setScalar(scale);
+          object.rotation.set(rx, ry, 0);
+          object.traverse(c => {
             if (c.isMesh) {
               c.castShadow = true;
               c.receiveShadow = true;
             }
           });
-          scene.add(model);
+          scene.add(object);
         },
         undefined,
         (err) => console.warn(`Could not load model: ${path}`, err)
@@ -197,9 +193,9 @@ const loader = new OBJLoader();
       lampBase:   new THREE.MeshStandardMaterial({ color: 0x231e1a, roughness: 0.45, metalness: 0.85 }),
       lampShade:  new THREE.MeshStandardMaterial({
                     color: 0xc98c2e, roughness: 0.75, metalness: 0,
-                    side: THREE.DoubleSide, emissive: 0x7a4000, emissiveIntensity: 0.4
+                    side: THREE.DoubleSide, emissive: 0x7a4000, emissiveIntensity: 0.6
                   }),
-      bulb:       new THREE.MeshStandardMaterial({ color: 0xfff0b0, emissive: 0xffb040, emissiveIntensity: 3, roughness: 0.2 }),
+      bulb:       new THREE.MeshStandardMaterial({ color: 0xfff0b0, emissive: 0xffb040, emissiveIntensity: 4, roughness: 0.2 }),
       glass:      new THREE.MeshStandardMaterial({ color: 0x90b8cc, roughness: 0.05, metalness: 0.15, transparent: true, opacity: 0.28 }),
       sky:        new THREE.MeshStandardMaterial({ color: 0x7aa0bc, roughness: 1, emissive: 0x3a6080, emissiveIntensity: 0.55, side: THREE.FrontSide }),
       winFrame:   new THREE.MeshStandardMaterial({ color: 0x7a6248, roughness: 0.9, metalness: 0 }),
@@ -246,96 +242,79 @@ const loader = new OBJLoader();
 
     // room
     const RW = 12, RD = 10, RH = 5;
-    const hw = RW / 2, hd = RD / 2;   // half-extents: hw=6, hd=5
+    const hw = RW / 2, hd = RD / 2;
 
-    // floor/ceiling
     box(RW, 0.05, RD, M.floor,   0, 0,  0, 0,0,0, false);
     box(RW, 0.08, RD, M.ceiling, 0, RH, 0, 0,0,0, false);
 
     // photo wall
     box(0.08, RH, RD, M.wall,    -hw, RH/2, 0);
-
-    // right wall
+    // Right wall
     box(0.08, RH, RD, M.wallDark, hw, RH/2, 0);
 
-    // back wall
+    // back wall 
     const wX1=-1.5, wX2=1.5, wY1=2.0, wY2=4.3;
     const wW = wX2-wX1, wH = wY2-wY1;
-
-    box(hw + wX1,  RH,        0.08, M.wall, (-hw + wX1)/2,  RH/2,        -hd);  // left of window
-    box(hw - wX2,  RH,        0.08, M.wall, (wX2 + hw)/2,   RH/2,        -hd);  // right of window
-    box(wW,        wY1,       0.08, M.wall, 0,               wY1/2,       -hd);  // below window
-    box(wW,        RH - wY2,  0.08, M.wall, 0,               (wY2+RH)/2,  -hd);  // above window
+    box(hw + wX1,  RH,       0.08, M.wall, (-hw + wX1)/2, RH/2,       -hd);
+    box(hw - wX2,  RH,       0.08, M.wall, (wX2 + hw)/2,  RH/2,       -hd);
+    box(wW,        wY1,      0.08, M.wall, 0,              wY1/2,      -hd);
+    box(wW,        RH - wY2, 0.08, M.wall, 0,              (wY2+RH)/2, -hd);
 
     // sky
     box(5.5, 4.5, 0.05, M.sky, 0, 3.2, -hd - 0.6, 0,0,0, false);
-
-    // window glass
+    // Window glass
     box(wW-0.1, wH-0.1, 0.04, M.glass, 0, (wY1+wY2)/2, -hd+0.06);
-
     // window frame
     const ft = 0.08, wMY = (wY1+wY2)/2;
-    box(wW + ft*2, ft, 0.12, M.winFrame, 0,   wY2,  -hd+0.06);  // top
-    box(wW + ft*2, ft, 0.12, M.winFrame, 0,   wY1,  -hd+0.06);  // bottom
-    box(ft, wH, 0.12, M.winFrame, wX1, wMY, -hd+0.06);          // left jamb
-    box(ft, wH, 0.12, M.winFrame, wX2, wMY, -hd+0.06);          // right jamb
-    box(wW, ft, 0.09, M.winFrame, 0,   wMY, -hd+0.06);          // center h-bar
-    box(ft, wH, 0.09, M.winFrame, 0,   wMY, -hd+0.06);          // center v-bar
+    box(wW + ft*2, ft, 0.12, M.winFrame, 0,   wY2,  -hd+0.06);
+    box(wW + ft*2, ft, 0.12, M.winFrame, 0,   wY1,  -hd+0.06);
+    box(ft, wH, 0.12, M.winFrame, wX1, wMY, -hd+0.06);
+    box(ft, wH, 0.12, M.winFrame, wX2, wMY, -hd+0.06);
+    box(wW, ft, 0.09, M.winFrame, 0,   wMY, -hd+0.06);
+    box(ft, wH, 0.09, M.winFrame, 0,   wMY, -hd+0.06);
 
-    // exit door
-    const doorCX  = 3.8;
-    const doorW   = 1.2;
-    const doorH   = 2.35;
-    const doorL   = doorCX - doorW / 2;   //  3.2
-    const doorR   = doorCX + doorW / 2;   //  4.4
+    // front wall
+    const doorCX = 3.8, doorW = 1.2, doorH = 2.35;
+    const doorL = doorCX - doorW / 2;   // 3.2
+    const doorR = doorCX + doorW / 2;   // 4.4
 
-    // wall left of door
-    const seg1W = doorL - (-hw);          //  3.2 + 6 = 9.2
-    box(seg1W, RH, 0.08, M.wall, (-hw + doorL) / 2, RH/2, hd);
-
-    // wall right of door
-    const seg2W = hw - doorR;             //  6 - 4.4 = 1.6
-    box(seg2W, RH, 0.08, M.wall, (doorR + hw) / 2, RH/2, hd);
-
-    // wall above door
-    box(doorW, RH - doorH, 0.08, M.wall, doorCX, (doorH + RH) / 2, hd);
+    box(doorL - (-hw), RH,          0.08, M.wall, (-hw + doorL) / 2, RH/2,              hd);
+    box(hw - doorR,    RH,          0.08, M.wall, (doorR + hw) / 2,  RH/2,              hd);
+    box(doorW,         RH - doorH,  0.08, M.wall, doorCX,            (doorH + RH) / 2,  hd);
 
     // door frame trim
     const df = 0.07;
-    box(df, doorH, 0.1, M.doorFrame, doorL  - df/2, doorH/2, hd);   // left jamb
-    box(df, doorH, 0.1, M.doorFrame, doorR  + df/2, doorH/2, hd);   // right jamb
-    box(doorW + df*2, df, 0.1, M.doorFrame, doorCX, doorH + df/2, hd); // header
+    box(df, doorH, 0.1, M.doorFrame, doorL - df/2, doorH/2, hd);
+    box(df, doorH, 0.1, M.doorFrame, doorR + df/2, doorH/2, hd);
+    box(doorW + df*2, df, 0.1, M.doorFrame, doorCX, doorH + df/2, hd);
 
-    // door step
+    // outside
     box(doorW, 0.05, 3.0, M.voidFloor, doorCX, 0, hd + 1.5, 0,0,0, false);
 
-    //baseboards
+    // baseboards
     box(0.04, 0.14, RD,   M.baseboard, -hw+0.04, 0.07,  0);
     box(0.04, 0.14, RD,   M.baseboard,  hw-0.04, 0.07,  0);
     box(RW,   0.14, 0.04, M.baseboard, 0, 0.07, -hd+0.04);
 
     // rug
     box(3.5, 0.025, 2.8, M.rug,        0,    0.025, 1.0);
-    box(3.2, 0.030, 0.1, M.rugPattern, 0,    0.030, 2.35);   // border top
-    box(3.2, 0.030, 0.1, M.rugPattern, 0,    0.030,-0.30);   // border bottom
-    box(0.1, 0.030, 2.5, M.rugPattern,-1.65, 0.030, 1.0);    // border left
-    box(0.1, 0.030, 2.5, M.rugPattern, 1.65, 0.030, 1.0);    // border right
+    box(3.2, 0.030, 0.1, M.rugPattern, 0,    0.030, 2.35);
+    box(3.2, 0.030, 0.1, M.rugPattern, 0,    0.030,-0.30);
+    box(0.1, 0.030, 2.5, M.rugPattern,-1.65, 0.030, 1.0);
+    box(0.1, 0.030, 2.5, M.rugPattern, 1.65, 0.030, 1.0);
 
     // desk
     const dX = 0, dZ = -hd + 0.62, dTopY = 0.76;
     const dW = 2.65, dD = 0.88;
 
-    // surface
     box(dW, 0.07, dD, M.wood, dX, dTopY, dZ);
 
-    // legs
     const lx = dW/2 - 0.07, lz = dD/2 - 0.07;
     box(0.065, dTopY-0.035, 0.065, M.metal, dX-lx, (dTopY-0.035)/2, dZ-lz);
     box(0.065, dTopY-0.035, 0.065, M.metal, dX+lx, (dTopY-0.035)/2, dZ-lz);
     box(0.065, dTopY-0.035, 0.065, M.metal, dX-lx, (dTopY-0.035)/2, dZ+lz);
     box(0.065, dTopY-0.035, 0.065, M.metal, dX+lx, (dTopY-0.035)/2, dZ+lz);
 
-    // drawers
     const drX = dX + dW/2 - 0.3;
     box(0.58, 0.52, dD-0.08, M.woodLight, drX, dTopY-0.285, dZ-0.02);
     cyl(0.014,0.014,0.06,8, M.metal, drX, dTopY-0.10, dZ+0.44, 0,0,Math.PI/2);
@@ -345,13 +324,13 @@ const loader = new OBJLoader();
     // desk shelf
     const hY=dTopY+0.035, hH=0.92, hD=0.38, hW=2.0;
     const hZ = dZ - dD/2 + hD/2;
-    box(hW,  hH,         0.04, M.wood,      dX,         hY+hH/2,    hZ-hD/2);
-    box(0.04,hH,         hD,   M.wood,      dX-hW/2,    hY+hH/2,    hZ);
-    box(0.04,hH,         hD,   M.wood,      dX+hW/2,    hY+hH/2,    hZ);
-    box(hW,  0.04,       hD,   M.wood,      dX,         hY+hH,      hZ);
-    box(hW,  0.04,       hD,   M.woodLight, dX,         hY+hH*0.48, hZ);
-    box(0.04,hH*0.48,    hD,   M.woodLight, dX-hW*0.30, hY+hH*0.24, hZ);
-    box(0.04,hH*0.48,    hD,   M.woodLight, dX+hW*0.30, hY+hH*0.24, hZ);
+    box(hW,  hH,      0.04, M.wood,      dX,         hY+hH/2,    hZ-hD/2);
+    box(0.04,hH,      hD,   M.wood,      dX-hW/2,    hY+hH/2,    hZ);
+    box(0.04,hH,      hD,   M.wood,      dX+hW/2,    hY+hH/2,    hZ);
+    box(hW,  0.04,    hD,   M.wood,      dX,         hY+hH,      hZ);
+    box(hW,  0.04,    hD,   M.woodLight, dX,         hY+hH*0.48, hZ);
+    box(0.04,hH*0.48, hD,   M.woodLight, dX-hW*0.30, hY+hH*0.24, hZ);
+    box(0.04,hH*0.48, hD,   M.woodLight, dX+hW*0.30, hY+hH*0.24, hZ);
 
     // books
     const bookY = hY + hH*0.48 + 0.02;
@@ -380,7 +359,7 @@ const loader = new OBJLoader();
     box(0.04,cLH,0.04, M.wood, cX+0.22, cLH/2, cZ+0.22);
     box(0.44,0.025,0.025, M.woodLight, cX, 0.22, cZ+0.22);
 
-    //radiator
+    // Radiator
     const rX = -hw+0.18, rZ = -0.8, rH = 0.78, rD = 0.92;
     box(0.10, rH, rD, M.radiator, rX, rH/2, rZ);
     for (let i = 0; i < 6; i++) {
@@ -391,21 +370,24 @@ const loader = new OBJLoader();
     box(0.08,0.04,0.15, M.radiator, rX, 0.02, rZ+rD/2-0.1);
 
     // lights
-    scene.add(new THREE.AmbientLight(0x3a2010, 0.45));
+    scene.add(new THREE.AmbientLight(0x6a5030, 1.1));
 
-    const lampPt = new THREE.PointLight(0xffaa44, 4.2, 5.5, 1.8);
+    // desk lamp
+    const lampPt = new THREE.PointLight(0xffaa44, 7.0, 7.0, 1.6);
     lampPt.position.set(lpX+0.18, lpBase+0.60, lpZ);
     lampPt.castShadow = true;
     lampPt.shadow.mapSize.set(512, 512);
     lampPt.shadow.bias = -0.001;
     scene.add(lampPt);
 
-    const winDir = new THREE.DirectionalLight(0x90b8d4, 0.55);
+    
+    const winDir = new THREE.DirectionalLight(0x90b8d4, 1.2);
     winDir.position.set(0, 5, -9);
     winDir.target.position.set(0.5, 1.2, 0);
     scene.add(winDir, winDir.target);
 
-    const fill = new THREE.PointLight(0x5a4028, 0.5, 14, 1.5);
+    // ceiling
+    const fill = new THREE.PointLight(0x8a6840, 1.4, 18, 1.2);
     fill.position.set(0, 4.7, 0);
     scene.add(fill);
 
@@ -413,61 +395,38 @@ const loader = new OBJLoader();
     radGlow.position.set(rX+0.2, rH*0.5, rZ);
     scene.add(radGlow);
 
-    // light near gallery wall 
-    const galleryLight = new THREE.PointLight(0xd4a06a, 1.2, 7.0, 1.6);
-    galleryLight.position.set(-hw + 1.5, 3.5, -1.0);
+    // gallery wall
+    const galleryLight = new THREE.PointLight(0xd4a06a, 2.8, 9.0, 1.4);
+    galleryLight.position.set(-hw + 1.8, 3.8, -1.5);
     scene.add(galleryLight);
 
-    // models
+    const galleryLight2 = new THREE.PointLight(0xd4a06a, 2.0, 7.0, 1.4);
+    galleryLight2.position.set(-hw + 1.8, 3.8, 1.5);
+    scene.add(galleryLight2);
 
-    // ipad
-    loadModel(
-      'tablet.obj',
-      dX + 0.55,      // x — right-center of desk
-      dTopY + 0.04,   // y — just above desk surface
-      dZ,             // z — same depth as desk center
-      0.35,           // scale 
-      0               // rotation y
-    );
+    // ══════════════════════════════════════════════════════════════════════════
+    //  3D MODELS  (OBJLoader)
+    // ══════════════════════════════════════════════════════════════════════════
 
-    // blinds
-    loadModel(
-      'window blinds.obj',
-      0,                  // x — centered on window
-      (wY1 + wY2) / 2,   // y — vertical center of window ≈ 3.15
-      -hd + 0.08,         // z — just inside back wall
-      1.0,                // scale
-      0
-    );
+    // tablet on desk
+    loadModel('tablet.obj',        dX + 0.55, dTopY + 0.04, dZ,   0.35, 0);
+
+    // window blinds
+    loadModel('window blinds.obj', 0, (wY1 + wY2) / 2, -hd + 0.08, 1.0, 0);
 
     // easel
-    loadModel(
-      'easel.obj',
-      -2.2,           // x — left of center
-      0,              // y — floor level
-      1.6,            // z — middle of room
-      1.0,            // scale
-      Math.PI * 0.08  // ry — slight angle 
-    );
+    loadModel('easel.obj',         -2.2, 0, 1.6, 1.0, Math.PI * 0.08);
 
-    // wooden floor crate
-    loadModel(
-      'Crate.obj',
-      2.5,            // x — right side of room
-      0,              // y — floor level
-      -2.5,           // z — roughly beside desk
-      0.75,           // scale 
-      Math.PI * 0.12  // ry — slightly rotated
-    );
+    // wooden crate
+    loadModel('Crate.obj',         2.5, 0, -2.5, 0.75, Math.PI * 0.12);
 
-
-    //frame layout
+    // images and frames
     const galleryFrames = [
-      { z: -3.0, y: 3.1 },   // frame 1 — upper row, far back
-      { z: -1.1, y: 3.1 },   // frame 2 — upper row, center
-      { z:  0.8, y: 3.1 },   // frame 3 — upper row, front
-      { z: -2.0, y: 1.75 },  // frame 4 — lower row, back
-      { z: -0.2, y: 1.75 },  // frame 5 — lower row, front
+      { z: -3.0, y: 3.1  },
+      { z: -1.1, y: 3.1  },
+      { z:  0.8, y: 3.1  },
+      { z: -2.0, y: 1.75 },
+      { z: -0.2, y: 1.75 },
     ];
 
     const imageFiles = [
@@ -478,81 +437,74 @@ const loader = new OBJLoader();
       'image5.jpg',
     ];
 
-    // image dimensions
     const imgW = 0.52, imgH = 0.40;
 
+    //fallback
+    function placeFallbackFrame(pos, i) {
+      const bdrMat = new THREE.MeshStandardMaterial({ color: 0x5c4428, roughness: 0.88 });
+      const fw = imgW + 0.06, fh = imgH + 0.06, fd = 0.03;
+      const fx = -hw + 0.06;
+      box(fd, fh + 0.06, 0.03, bdrMat, fx, pos.y, pos.z - fw/2, 0, Math.PI/2);
+      box(fd, fh + 0.06, 0.03, bdrMat, fx, pos.y, pos.z + fw/2, 0, Math.PI/2);
+      box(fd, 0.04, fw,   bdrMat, fx, pos.y + fh/2, pos.z, 0, Math.PI/2);
+      box(fd, 0.04, fw,   bdrMat, fx, pos.y - fh/2, pos.z, 0, Math.PI/2);
 
-loader.load(
+      const tex = texLoader.load(imageFiles[i]);
+      const imgMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(imgW, imgH),
+        new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, metalness: 0 })
+      );
+      imgMesh.position.set(-hw + 0.10, pos.y, pos.z);
+      imgMesh.rotation.y = Math.PI / 2;
+      scene.add(imgMesh);
+    }
+
+    // frame
+    objLoader.load(
       'frame.obj',
-      //(gltf) => {
+      (frameObj) => {
         galleryFrames.forEach((pos, i) => {
-         
-          const frame = gltf.scene.clone(true);
+          const frame = frameObj.clone(true);
           frame.position.set(-hw + 0.08, pos.y, pos.z);
-          frame.rotation.y = Math.PI / 2;   
-          frame.scale.setScalar(0.5);       
+          frame.rotation.y = Math.PI / 2;
+          frame.scale.setScalar(0.5);
           frame.traverse(c => {
             if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
           });
           scene.add(frame);
 
-         
           const tex = texLoader.load(imageFiles[i]);
-          const imgMat = new THREE.MeshStandardMaterial({
-            map: tex, roughness: 0.85, metalness: 0
-          });
-          const imgMesh = new THREE.Mesh(new THREE.PlaneGeometry(imgW, imgH), imgMat);
+          const imgMesh = new THREE.Mesh(
+            new THREE.PlaneGeometry(imgW, imgH),
+            new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, metalness: 0 })
+          );
           imgMesh.position.set(-hw + 0.14, pos.y, pos.z);
           imgMesh.rotation.y = Math.PI / 2;
           scene.add(imgMesh);
         });
       },
       undefined,
-      // fallback
       (err) => {
-        console.warn('framemockup.glb failed to load — using fallback frame geometry', err);
-        galleryFrames.forEach((pos, i) => {
-          // frame
-          const bdrMat = new THREE.MeshStandardMaterial({ color: 0x5c4428, roughness: 0.88 });
-          const fw = imgW + 0.06, fh = imgH + 0.06, fd = 0.03;
-          const fx = -hw + 0.06;
-          // border
-          box(fd, fh + 0.06, 0.03, bdrMat, fx, pos.y, pos.z - fw/2, 0, Math.PI/2);
-          box(fd, fh + 0.06, 0.03, bdrMat, fx, pos.y, pos.z + fw/2, 0, Math.PI/2);
-          box(fd, 0.04,       fw,   bdrMat, fx, pos.y + fh/2, pos.z, 0, Math.PI/2);
-          box(fd, 0.04,       fw,   bdrMat, fx, pos.y - fh/2, pos.z, 0, Math.PI/2);
-
-          const tex = texLoader.load(imageFiles[i]);
-          const imgMat = new THREE.MeshStandardMaterial({
-            map: tex, roughness: 0.85, metalness: 0
-          });
-          const imgMesh = new THREE.Mesh(new THREE.PlaneGeometry(imgW, imgH), imgMat);
-          imgMesh.position.set(-hw + 0.10, pos.y, pos.z);
-          imgMesh.rotation.y = Math.PI / 2;
-          scene.add(imgMesh);
-        });
+        console.warn('frame.obj failed to load — using fallback frame geometry', err);
+        galleryFrames.forEach((pos, i) => placeFallbackFrame(pos, i));
       }
     );
 
-  
-    const exitTex = texLoader.load('Armory-entrance.jpg');
-    const exitMat = new THREE.MeshStandardMaterial({
-      map: exitTex,
-      roughness: 1.0,
-      emissive: 0x0a0806,
-      emissiveIntensity: 0.15,
-      side: THREE.DoubleSide
-    });
-    const exitPlane = new THREE.Mesh(
+    // exit door
+    const exitTex  = texLoader.load('Armory-entrance.jpg');
+    const exitMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(doorW * 1.6, doorH * 1.5),
-      exitMat
+      new THREE.MeshStandardMaterial({
+        map: exitTex, roughness: 1.0,
+        emissive: 0x0a0806, emissiveIntensity: 0.15,
+        side: THREE.DoubleSide
+      })
     );
-    exitPlane.position.set(doorCX, doorH * 0.5, hd + 2.2);
-    exitPlane.rotation.y = Math.PI;  
-    scene.add(exitPlane);
+    exitMesh.position.set(doorCX, doorH * 0.5, hd + 2.2);
+    exitMesh.rotation.y = Math.PI;
+    scene.add(exitMesh);
 
-    //  ani loops
-   
+    // ani loop
     const clock    = new THREE.Clock();
     const velocity = new THREE.Vector3();
     const SPEED    = 3.8;
@@ -562,11 +514,10 @@ loader.load(
       const dt = clock.getDelta();
       const t  = clock.getElapsedTime();
 
-      // lamp flicker
-      lampPt.intensity = 4.2
-        + Math.sin(t * 53) * 0.06
-        + Math.sin(t * 31) * 0.04
-        + (Math.random() < 0.003 ? -1.2 : 0);
+      lampPt.intensity = 7.0
+        + Math.sin(t * 53) * 0.12
+        + Math.sin(t * 31) * 0.08
+        + (Math.random() < 0.003 ? -2.0 : 0);
 
       if (controls.isLocked) {
         velocity.x -= velocity.x * 9 * dt;
@@ -581,14 +532,13 @@ loader.load(
         controls.moveForward(-velocity.z * dt);
         controls.moveRight  (-velocity.x * dt);
 
-        // room bounds
         const nearDoor = Math.abs(camera.position.x - doorCX) < doorW / 2 + 0.3;
 
         camera.position.x = THREE.MathUtils.clamp(camera.position.x, -hw + 0.35, hw - 0.35);
         camera.position.z = THREE.MathUtils.clamp(
           camera.position.z,
           -hd + 0.45,
-          nearDoor ? hd + 6.0 : hd - 0.25   // exit door
+          nearDoor ? hd + 6.0 : hd - 0.25
         );
         camera.position.y = 1.65;
       }
