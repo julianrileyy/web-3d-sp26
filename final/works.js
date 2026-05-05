@@ -8,9 +8,9 @@ export const WORKS = [
     image: "./assets/images/work-1.jpg",
   },
   {
-    title: "Work Title Two",
+    title: "7 Autumn",
     year: "2024",
-    medium: "Photography",
+    medium: "Photography Series",
     description: "A brief description of the work and its conceptual context.",
     image: "./assets/images/work-2.jpg",
   },
