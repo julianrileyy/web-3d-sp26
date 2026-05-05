@@ -1,11 +1,8 @@
-// ─────────────────────────────────────────────────────────────────────────────
-//  WORKS.JS  ·  Your portfolio content lives here. Edit freely.
-// ─────────────────────────────────────────────────────────────────────────────
-
+// content
 export const WORKS = [
   {
-    title: "Work Title One",
-    year: "2024",
+    title: "Hate is Taught",
+    year: "2026",
     medium: "Oil on Canvas",
     description: "A brief description of the work and its conceptual context.",
     image: "./assets/images/work-1.jpg",
