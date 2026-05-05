@@ -113,22 +113,22 @@ WORKS.forEach((work, i) => {
   const x = FIRST_PANEL_X + i * PANEL_SPACING;
 
   // bg
-  const shadow = plane(6.35, 8.2, 0x070706);
+  const shadow = plane(9.35, 8.2, 0x070706);
   shadow.position.set(x + 0.18, -0.18, -0.05);
   scene.add(shadow);
 
   // border
-  const border = plane(6.25, 8.1, 0x1e1c19);
+  const border = plane(9.25, 8.1, 0x1e1c19);
   border.position.set(x, 0, -0.02);
   scene.add(border);
 
   // bg square
-  const bg = plane(6.0, 7.85, 0xeee8dc);
+  const bg = plane(9.0, 7.85, 0xeee8dc);
   bg.position.set(x, 0, 0);
   scene.add(bg);
 
 
-  const imgGeo = new THREE.PlaneGeometry(5.5, 5.8);
+  const imgGeo = new THREE.PlaneGeometry(8.5, 5.8);
   let imgMat;
 
   if (work.image) {
