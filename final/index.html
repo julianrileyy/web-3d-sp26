@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JJ Cathcart Portfolio</title>
+  <meta name="description" content="JJ Cathcart — Portfolio of physical works, series, and photography." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <canvas id="canvas"></canvas>
+
+  <!-- grain-->
+  <div id="grain" aria-hidden="true"></div>
+
+  <!--home overlay -->
+  <div id="homepage-overlay" aria-label="Homepage">
+    <div id="home-content">
+      <span class="home-label">Portfolio</span>
+
+      <h1 id="home-name">JJ<br>Cathcart</h1>
+
+      <p class="home-tagline">Physical &nbsp;·&nbsp; Digital &nbsp;·&nbsp; Photography</p>
+
+      <p class="home-contact">juliancathcart@gmail.com &nbsp; · &nbsp; 757-761-2860</p>
+
+      <div class="scroll-hint" aria-label="Scroll right to view works">
+        <span>Scroll to navigate</span>
+        <!-- right arrow -->
+        <svg viewBox="0 0 28 14" aria-hidden="true">
+          <polyline points="21,1 27,7 21,13"/>
+          <line x1="1" y1="7" x2="27" y2="7"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- overlays -->
+  <div id="overlay" aria-live="polite"></div>
+
+  <!-- scroll bar -->
+  <div id="progress-bar" role="progressbar" aria-label="Scroll progress">
+    <div id="progress-fill"></div>
+  </div>
+
+  <!-- bottom right corner lable-->
+  <div id="corner-label">
+    Works<span>Contact</span>
+  </div>
+
+
+  <script type="module" src="./js/main.js"></script>
+
+</body>
+</html>

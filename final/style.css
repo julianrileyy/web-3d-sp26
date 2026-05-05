@@ -1,0 +1,243 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   STYLE.CSS  ·  CatJJart Portfolio
+   Palette: near-black bg · warm cream · wine red accent · muted grey
+───────────────────────────────────────────────────────────────────────────── */
+
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap");
+
+/* ── VARIABLES ─────────────────────────────────────────────────────────────── */
+
+:root {
+  --bg:      #0c0b09;
+  --cream:   #eee8dc;
+  --wine:    #7d2030;
+  --charcoal:#1e1c19;
+  --muted:   #7a7470;
+  --dim:     #3a3733;
+
+  --font-display: "Bebas Neue", sans-serif;
+  --font-body:    "DM Mono", monospace;
+}
+
+/* ── RESET ─────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--font-body);
+  cursor: grab;
+  user-select: none;
+}
+
+body:active { cursor: grabbing; }
+
+/* ── CANVAS ────────────────────────────────────────────────────────────────── */
+
+#canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── GRAIN OVERLAY ─────────────────────────────────────────────────────────── */
+
+#grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.38;
+  /* SVG noise grain */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  mix-blend-mode: overlay;
+}
+
+/* ── HOMEPAGE OVERLAY ──────────────────────────────────────────────────────── */
+
+#homepage-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 8vw;
+  transition: opacity 0.1s linear;
+}
+
+#home-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.home-label {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--wine);
+}
+
+#home-name {
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 13vw, 14rem);
+  line-height: 0.88;
+  color: var(--cream);
+  letter-spacing: -0.01em;
+}
+
+.home-tagline {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.home-contact {
+  font-size: 0.65rem;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  margin-top: 0.5rem;
+}
+
+.scroll-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  animation: pulse-hint 2.5s ease-in-out infinite;
+}
+
+.scroll-hint svg {
+  width: 28px;
+  height: 14px;
+  stroke: var(--wine);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: slide-arrow 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-hint {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1.0; }
+}
+
+@keyframes slide-arrow {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(6px); }
+  100% { transform: translateX(0); }
+}
+
+/* ── WORK TEXT OVERLAYS ────────────────────────────────────────────────────── */
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.work-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 340px;
+  padding: 1.4rem 0 0 0;
+  transition: opacity 0.25s ease;
+  border-top: 1px solid var(--charcoal);
+}
+
+.work-index {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--wine);
+  margin-bottom: 0.6rem;
+}
+
+.work-title {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1.0;
+  color: var(--cream);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.55rem;
+}
+
+.work-meta {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+.work-desc {
+  font-size: 0.72rem;
+  line-height: 1.7;
+  color: var(--dim);
+  max-width: 300px;
+  font-style: italic;
+}
+
+/* ── PROGRESS BAR ──────────────────────────────────────────────────────────── */
+
+#progress-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--charcoal);
+  z-index: 30;
+}
+
+#progress-fill {
+  height: 100%;
+  background: var(--wine);
+  width: 0%;
+  transition: width 0.05s linear;
+}
+
+/* ── CORNER LABEL ──────────────────────────────────────────────────────────── */
+
+#corner-label {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 2rem;
+  z-index: 30;
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--dim);
+  pointer-events: none;
+}
+
+#corner-label span {
+  color: var(--wine);
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  #home-name { font-size: 4.5rem; }
+  .work-text  { width: 260px; }
+  .work-title { font-size: 1.8rem; }
+}
