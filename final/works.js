@@ -3,7 +3,7 @@ export const WORKS = [
   {
     title: "Hate is Taught",
     year: "2026",
-    medium: "Oil on Canvas",
+    medium: "Pencil and Paint on Bristol Paper",
     description: "A brief description of the work and its conceptual context.",
     image: "./assets/images/work-1.jpg",
   },
@@ -37,14 +37,12 @@ export const WORKS = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  SITE CONFIG  ·  Global settings
-// ─────────────────────────────────────────────────────────────────────────────
+// config
 
 export const CONFIG = {
-  name:    "JJ Cathcart",           // Your name on the homepage
-  label:   "Studio Art",            // Subtitle label
-  tagline: "Physical Works · Series · Photography",
-  email:   "JulianCathcart@gmail.com",
+  name:    "JJ Riley",           
+  label:   "Studio Artist",           
+  //tagline: "Physical Works · Series · Photography",
+  email:   "JulianJJRiley@gmail.com",
   contact: "757-761-2860",
 };
