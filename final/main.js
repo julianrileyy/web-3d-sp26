@@ -144,13 +144,13 @@ WORKS.forEach((work, i) => {
   scene.add(imgMesh);
 
 
- // const crossColor = 0x4a4844;
- // [[new THREE.Vector3(x, 0.95 + 1.4, 0.02), new THREE.Vector3(x, 0.95 - 1.4, 0.02)],
-  // [new THREE.Vector3(x - 1.4, 0.95, 0.02), new THREE.Vector3(x + 1.4, 0.95, 0.02)]]
-  //.forEach(pts => {
-  //  const g = new THREE.BufferGeometry().setFromPoints(pts);
- //   const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: crossColor, transparent: true, opacity: 0.4 }));
- //   scene.add(l);
+ const crossColor = 0x4a4844;
+ [[new THREE.Vector3(x, 0.95 + 1.4, 0.02), new THREE.Vector3(x, 0.95 - 1.4, 0.02)],
+[new THREE.Vector3(x - 1.4, 0.95, 0.02), new THREE.Vector3(x + 1.4, 0.95, 0.02)]]
+.forEach(pts => {
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+   const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: crossColor, transparent: true, opacity: 0.4 }));
+    scene.add(l);
   });
 
 
