@@ -1,7 +1,8 @@
-
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js";
-
+import * as THREE from //"three";
+"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js";
+//import { FontLoader } from "final/src/FontLoader.js";
 import { WORKS, CONFIG } from "./works.js";
+
 
 // constants
 
@@ -32,15 +33,11 @@ const scene  = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(58, W / H, 0.1, 300);
 camera.position.set(0, 0, CAMERA_Z);
 
-//text
-
 const loader = new THREE.TextureLoader();
 
 function loadTex(path) {
   return loader.load(path);
 }
-
-
 
 function mat(color, opts = {}) {
   return new THREE.MeshBasicMaterial({ color, ...opts });
@@ -52,6 +49,36 @@ function plane(w, h, color, opts) {
   return mesh;
 }
 
+// Canvas text texture helper
+function makeTextPlane(text, opts = {}) {
+  const {
+    font        = "500 28px 'DM Mono', monospace",
+    color       = "#2a2825",
+    w           = 500,
+    h           = 64,
+    planeW      = 8.5,
+    planeH      = 0.55,
+    align       = "center",
+    paddingLeft = 18,
+  } = opts;
+
+  const textCanvas  = document.createElement("canvas");
+  textCanvas.width  = w;
+  textCanvas.height = h;
+  const ctx         = textCanvas.getContext("2d");
+
+  ctx.font         = font;
+  ctx.fillStyle    = color;
+  ctx.textBaseline = "middle";
+  ctx.textAlign    = align;
+  ctx.fillText(text, align === "left" ? paddingLeft : w / 2, h / 2);
+
+  const tex = new THREE.CanvasTexture(textCanvas);
+  const geo = new THREE.PlaneGeometry(planeW, planeH);
+  const m   = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+  return new THREE.Mesh(geo, m);
+}
+
 
 
 for (let y = -7; y <= 7; y += 3.5) {
@@ -61,7 +88,7 @@ for (let y = -7; y <= 7; y += 3.5) {
 }
 
 
-//star
+// star
 function buildStarShape(outerR, innerR, points) {
   const shape = new THREE.Shape();
   const step  = Math.PI / points;
@@ -78,7 +105,6 @@ function buildStarShape(outerR, innerR, points) {
 
 const starShape = buildStarShape(3.2, 1.35, 5);
 const starGeo   = new THREE.ShapeGeometry(starShape);
-
 
 const starFill = new THREE.Mesh(starGeo, mat(0x7d2030, { transparent: true, opacity: 0.10 }));
 starFill.position.set(0, 0, -1.5);
@@ -105,14 +131,15 @@ scene.add(starOutline);
   scene.add(rMesh);
 });
 
-//works
+
+// works
 
 const panelData = []; 
 
 WORKS.forEach((work, i) => {
   const x = FIRST_PANEL_X + i * PANEL_SPACING;
 
-  // bg
+  // bg shadow
   const shadow = plane(9.35, 8.2, 0x070706);
   shadow.position.set(x + 0.18, -0.18, -0.05);
   scene.add(shadow);
@@ -127,7 +154,7 @@ WORKS.forEach((work, i) => {
   bg.position.set(x, 0, 0);
   scene.add(bg);
 
-
+  // artwork image
   const imgGeo = new THREE.PlaneGeometry(8.5, 5.8);
   let imgMat;
 
@@ -143,19 +170,46 @@ WORKS.forEach((work, i) => {
   imgMesh.position.set(x, 0.95, 0.01);
   scene.add(imgMesh);
 
-
- const crossColor = 0x4a4844;
- [[new THREE.Vector3(x, 0.95 + 1.4, 0.02), new THREE.Vector3(x, 0.95 - 1.4, 0.02)],
-[new THREE.Vector3(x - 1.4, 0.95, 0.02), new THREE.Vector3(x + 1.4, 0.95, 0.02)]]
-.forEach(pts => {
-  const g = new THREE.BufferGeometry().setFromPoints(pts);
-   const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: crossColor, transparent: true, opacity: 0.4 }));
-    scene.add(l);
+  // title label
+  const titleMesh = makeTextPlane(work.title || "Title", {
+    font:   "400 32px 'Bebas Neue', sans-serif",
+    color:  "#2a2825",
+    w:      512,
+    h:      56,
+    planeW: 8.5,
+    planeH: 0.55,
   });
+  titleMesh.position.set(x, -2.2, 0.01);
+  scene.add(titleMesh);
 
+  // description label 
+  const descText = work.description
+    ? work.description.slice(0, 60) + (work.description.length > 60 ? "…" : "")
+    : "Description";
 
+  const descMesh = makeTextPlane(descText, {
+    font:   "100 18px 'DM Mono', monospace",
+    color:  "#6b6760",
+    w:      512,
+    h:      48,
+    planeW: 8.5,
+    planeH: 0.45,
+  });
+  descMesh.position.set(x, -2.82, 0.01);
+  scene.add(descMesh);
 
-  //html text
+  // crosshair lines
+  //const crossColor = 0x4a4844;
+  //[
+ //   [new THREE.Vector3(x, 0.95 + 1.4, 0.02), new THREE.Vector3(x, 0.95 - 1.4, 0.02)],
+  //  [new THREE.Vector3(x - 1.4, 0.95, 0.02), new THREE.Vector3(x + 1.4, 0.95, 0.02)],
+ // ].forEach(pts => {
+ //   const g = new THREE.BufferGeometry().setFromPoints(pts);
+   // const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: crossColor, transparent: true, opacity: 0.4 }));
+  //  scene.add(l);
+ // });
+
+  // html text overlay (year / medium / long description)
   const div = document.createElement("div");
   div.className = "work-text";
   div.innerHTML = `
@@ -168,20 +222,18 @@ WORKS.forEach((work, i) => {
   panelData.push({ div, worldX: x, worldY: -4.5 });
 });
 
-//scroll
+
+// scroll / input
 
 let targetX  = 0;
 let currentX = 0;
 let velocity = 0;    
-
-// cntrls
 
 window.addEventListener("wheel", (e) => {
   e.preventDefault();
   const delta = (e.deltaY + e.deltaX) * WHEEL_SCALE;
   velocity += delta;
 }, { passive: false });
-
 
 
 let isDragging    = false;
@@ -208,7 +260,7 @@ window.addEventListener("mousemove", (e) => {
 
 window.addEventListener("mouseup", () => {
   if (isDragging) {
-    velocity   = dragVelocity * 2.5; // release momentum
+    velocity   = dragVelocity * 2.5;
     isDragging = false;
   }
   document.body.style.cursor = "grab";
@@ -223,8 +275,7 @@ window.addEventListener("mouseleave", () => {
 });
 
 
-
-let touchPrevX   = 0;
+let touchPrevX    = 0;
 let touchVelocity = 0;
 
 window.addEventListener("touchstart", (e) => {
@@ -246,7 +297,6 @@ window.addEventListener("touchend", () => {
 });
 
 
-
 window.addEventListener("resize", () => {
   W = window.innerWidth;
   H = window.innerHeight;
@@ -256,13 +306,12 @@ window.addEventListener("resize", () => {
 });
 
 
-
 const tempVec      = new THREE.Vector3();
 const progressFill = document.getElementById("progress-fill");
 const homeOverlay  = document.getElementById("homepage-overlay");
 
 function syncOverlays() {
-  // Homepage fade
+  // homepage fade
   const homeFade = Math.max(0, 1 - currentX / 5);
   homeOverlay.style.opacity = homeFade;
 
@@ -276,16 +325,15 @@ function syncOverlays() {
 
     div.style.transform = `translate(-50%, 0) translate(${sx}px, ${sy}px)`;
 
-    // Fade in/out
+    // fade in/out based on distance from center
     const distFromCenter = Math.abs(sx - W * 0.5) / (W * 0.5);
-    div.style.opacity     = Math.max(0, 1 - distFromCenter * 1.4);
+    div.style.opacity    = Math.max(0, 1 - distFromCenter * 1.4);
   });
 
-  // Progress bar
+  // progress bar
   const pct = (currentX / MAX_CAMERA_X) * 100;
   progressFill.style.width = `${pct}%`;
 }
-
 
 
 const clock = new THREE.Clock();
@@ -295,12 +343,10 @@ function animate() {
 
   const t = clock.getElapsedTime();
 
-
   if (!isDragging) {
     velocity  *= INERTIA_DECAY;
     targetX    = Math.max(0, Math.min(MAX_CAMERA_X, targetX + velocity));
   }
-
 
   currentX          += (targetX - currentX) * LERP_SPEED;
   camera.position.x  = currentX;
