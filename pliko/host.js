@@ -1,8 +1,4 @@
-/* ==========================================================
-   PLINKO GARDEN — HOST SCREEN (runs on the big screen)
-   p5.js draws the board; phones connect through PeerJS.
-   You normally don't need to edit this file — use config.js.
-   ========================================================== */
+
 
 /* ---------- board geometry (1 unit = one column width) ---------- */
 const GEO = {

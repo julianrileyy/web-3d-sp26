@@ -1,8 +1,4 @@
-/* ==========================================================
-   PLINKO GARDEN — PHONE CONTROLLER
-   Players: enter code -> pick character -> spin the wheel (0-5 pucks).
-   You normally don't need to edit this file — use config.js.
-   ========================================================== */
+
 (function () {
   'use strict';
   const $ = function (id) { return document.getElementById(id); };
