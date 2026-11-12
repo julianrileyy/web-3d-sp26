@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Project 2: Plinko</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="host">
+
+  <!-- top-left: how phones join -->
+  <div id="joinCard">
+    <div class="jtitle">Join on your phone</div>
+    <div id="joinCode">····</div>
+    <div id="joinUrl"></div>
+    <div id="qr"></div>
+    <div id="status" class="bad">Connecting…</div>
+  </div>
+
+  <!-- top-right: players + pucks dropped -->
+  <div id="players"></div>
+
+  <!-- the pop-up that appears every 15 pucks -->
+  <div id="popup">
+    <div id="popImg"></div>
+    <div id="popName" class="fancy"></div>
+    <div id="popSub"></div>
+  </div>
+
+  <!-- start screen (the click also unlocks sound in the browser) -->
+  <div id="startOverlay">
+    <h1>Project 2: Plinko</h1>
+    <p> <b>SPACE</b> to drop a puck yourself.</p>
+    <p class="small">Choose your Character:</p>
+    <div id="hostGrid" class="char-grid"></div>
+    <button id="startBtn" class="btn">Start&nbsp;</button>
+  </div>
+
+  <script src="lib/p5.min.js"></script>
+  <script src="lib/peerjs.min.js"></script>
+  <script src="lib/qrcode.js"></script>
+  <script src="config.js"></script>
+  <script src="shared.js"></script>
+  <script src="host.js"></script>
+</body>
+</html>
