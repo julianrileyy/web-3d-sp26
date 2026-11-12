@@ -1,6 +1,7 @@
 /* ===================================================================
-   Project 2: Plinko — SETTINGS  
-=================================================================== */
+   PLINKO GARDEN — SETTINGS   (the one file you edit)
+   Both the big screen (index.html) and the phones (play.html) read this.
+   =================================================================== */
 
 const SETTINGS = {
   FALL_SECONDS: 8,         // every puck takes this long to fall (make your wav files about this long)
@@ -21,19 +22,19 @@ const SETTINGS = {
             this character's pop-up every 15 pucks.
 ------------------------------------------------------------------- */
 const CHARACTERS = [
-  { name: "MX", image: "images/character1.png",  sound: "insert wav" },  // character 1
-  { name: "JESSIE", image: "images/character2.png",  sound: "insert wav" },  // character 2
-  { name: "ISAIAH", image: "images/character3.png",  sound: "insert wav" },  // character 3
-  { name: "LANDON", image: "images/character4.png",  sound: "insert wav" },  // character 4
-  { name: "JASMINE", image: "images/character5.png",  sound: "insert wav" },  // character 5
-  { name: "CARL", image: "images/character6.png",  sound: "insert wav" },  // character 6
-  { name: "CADEN", image: "images/character7.png",  sound: "insert wav" },  // character 7
-  { name: "JJ", image: "images/character8.png",  sound: "insert wav" },  // character 8
-  { name: "PHLIP", image: "images/character9.png",  sound: "insert wav" },  // character 9
-  { name: "BEN", image: "images/character10.png", sound: "insert wav" },  // character 10
-  { name: "GAVIN", image: "images/character11.png", sound: "insert wav" },  // character 11
-  { name: "JONAH", image: "images/character12.png", sound: "insert wav" },  // character 12
-  { name: "LES", image: "images/character13.png", sound: "insert wav" }   // character 13
+  { name: "name", image: "images/character1.png",  sound: "insert wav" },  // character 1
+  { name: "name", image: "images/character2.png",  sound: "insert wav" },  // character 2
+  { name: "name", image: "images/character3.png",  sound: "insert wav" },  // character 3
+  { name: "name", image: "images/character4.png",  sound: "insert wav" },  // character 4
+  { name: "name", image: "images/character5.png",  sound: "insert wav" },  // character 5
+  { name: "name", image: "images/character6.png",  sound: "insert wav" },  // character 6
+  { name: "name", image: "images/character7.png",  sound: "insert wav" },  // character 7
+  { name: "name", image: "images/character8.png",  sound: "insert wav" },  // character 8
+  { name: "name", image: "images/character9.png",  sound: "insert wav" },  // character 9
+  { name: "name", image: "images/character10.png", sound: "insert wav" },  // character 10
+  { name: "name", image: "images/character11.png", sound: "insert wav" },  // character 11
+  { name: "name", image: "images/character12.png", sound: "insert wav" },  // character 12
+  { name: "name", image: "images/character13.png", sound: "insert wav" }   // character 13
 ];
 
 /* -------------------------------------------------------------------

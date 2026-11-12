@@ -50,7 +50,6 @@ function setup() {
   layout();
   for (let i = 0; i < CHARACTERS.length; i++) makeCharGfx(i);
   buildBackground();
-  initButterflies();
   wireUI();
   startPeer(0);
 }
@@ -64,7 +63,6 @@ function windowResized() {
 function draw() {
   imageMode(CORNER);
   image(bg, 0, 0, width, height);
-  updateButterflies();
 
   const now = millis();
   const fallMs = SETTINGS.FALL_SECONDS * 1000;
@@ -198,7 +196,10 @@ function buildBackground() {
   for (let r = 0; r < GEO.rows; r++) {
     const xs = (r % 2 === 0) ? [0.5, 1.5, 2.5, 3.5, 4.5, 5.5] : [1, 2, 3, 4, 5];
     xs.forEach(function (x, i) {
-      drawFlower(bg, px(x), py(pegY(r)), S * GEO.pegR * 1.2, 5, PEG_COLORS[(r + i) % PEG_COLORS.length], '#fff3a8', (r + i) * 0.5);
+      bg.stroke(255);
+      bg.strokeWeight(Math.max(1.5, S * 0.03));
+      bg.fill(PEG_COLORS[(r + i) % PEG_COLORS.length]);
+      bg.circle(px(x), py(pegY(r)), S * GEO.pegR * 2);
     });
   }
 
@@ -232,7 +233,6 @@ function drawFallbackPuck(g, i) {
   g.noStroke();
   g.fill(PASTELS[i % PASTELS.length]);
   g.circle(PUCK_PX / 2, PUCK_PX / 2, PUCK_PX);
-  drawFlower(g, PUCK_PX / 2, PUCK_PX / 2, PUCK_PX * 0.45, 6, 'rgba(255,255,255,0.65)', 'rgba(255,230,120,0.9)', 0);
   g.fill('#8a5a9c');
   g.textAlign(CENTER, CENTER);
   g.textSize(46);

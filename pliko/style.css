@@ -8,7 +8,7 @@ body {
   color: var(--ink);
   background: linear-gradient(160deg, #ffe3f1 0%, #eadfff 50%, #d8f4ea 100%) fixed;
 }
-h1, h2, .fancy { font-family: 'Pacifico', 'Brush Script MT', cursive; font-weight: 400; color: var(--pink-d); margin: .2em 0; }
+h1, h2, .fancy { font-family: 'Fredoka', 'Quicksand', 'Trebuchet MS', Arial, sans-serif; font-weight: 600; color: var(--pink-d); margin: .2em 0; }
 h1 { font-size: 2.8rem; }
 h2 { font-size: 1.8rem; }
 p  { margin: .5em 0; }
@@ -117,4 +117,4 @@ body.phone #app { max-width: 440px; margin: 0 auto; padding: 70px 16px 30px; tex
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25));
 }
 #spinBtn { font-size: 1.6rem; padding: 16px 50px; }
-#result { font-family: 'Pacifico', cursive; color: var(--pink-d); font-size: 1.6rem; min-height: 2.2em; margin-top: 14px; }
+#result { font-family: 'Fredoka', 'Quicksand', 'Trebuchet MS', sans-serif; font-weight: 600; color: var(--pink-d); font-size: 1.6rem; min-height: 2.2em; margin-top: 14px; }
