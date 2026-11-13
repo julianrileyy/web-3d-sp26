@@ -34,42 +34,36 @@ const CHARACTERS = [
   { name: "LES", image: "images/character13.png", sound: "insert wav" }   // character 13
 ];
 
-/* -------------------------------------------------------------------
-   30 COIN SOUNDS
-   Every puck plays one of these while it falls. They are shuffled, and
-   once all 30 have played the shuffle starts again, so sounds repeat
-   in a random order. Replace "insert wav" with e.g. "sounds/coin1.wav".
-   (Sounds you leave as "insert wav" are simply skipped.)
-------------------------------------------------------------------- */
+
 const COIN_SOUNDS = [
-  "insert wav",  // coin sound 1
-  "insert wav",  // coin sound 2
-  "insert wav",  // coin sound 3
-  "insert wav",  // coin sound 4
-  "insert wav",  // coin sound 5
-  "insert wav",  // coin sound 6
-  "insert wav",  // coin sound 7
-  "insert wav",  // coin sound 8
-  "insert wav",  // coin sound 9
-  "insert wav",  // coin sound 10
-  "insert wav",  // coin sound 11
-  "insert wav",  // coin sound 12
-  "insert wav",  // coin sound 13
-  "insert wav",  // coin sound 14
-  "insert wav",  // coin sound 15
-  "insert wav",  // coin sound 16
-  "insert wav",  // coin sound 17
-  "insert wav",  // coin sound 18
-  "insert wav",  // coin sound 19
-  "insert wav",  // coin sound 20
-  "insert wav",  // coin sound 21
-  "insert wav",  // coin sound 22
-  "insert wav",  // coin sound 23
-  "insert wav",  // coin sound 24
-  "insert wav",  // coin sound 25
-  "insert wav",  // coin sound 26
-  "insert wav",  // coin sound 27
-  "insert wav",  // coin sound 28
-  "insert wav",  // coin sound 29
-  "insert wav"   // coin sound 30
+  "sounds/proj2sound1.wav",  // pucks sounds
+  "sounds/proj2sound2.wav",  
+  "sounds/proj2sound3.wav",  
+  "sounds/proj2sound4.wav",  
+  "sounds/proj2sound5.wav",  
+  "sounds/proj2sound6.wav",  
+  "sounds/proj2sound7.wav",  
+  "sounds/proj2sound8.wav", 
+  "sounds/proj2sound9.wav",   
+  "sounds/proj2sound10.wav",   
+  "sounds/proj2sound11.wav",   
+  "sounds/proj2sound12.wav",   
+  "sounds/proj2sound13.wav",   
+  "sounds/proj2sound14.wav",   
+  "sounds/proj2sound15.wav",   
+  "sounds/proj2sound16.wav",  
+  "sounds/proj2sound17.wav",  
+  "sounds/proj2sound18.wav",  
+  "sounds/proj2sound19.wav",   
+  "sounds/proj2sound20.wav",   
+  "sounds/proj2sound21.wav",   
+  "sounds/proj2sound22.wav",  
+  "sounds/proj2sound23.wav",   
+  "sounds/proj2sound24.wav",   
+  "sounds/proj2sound25.wav",   
+  "sounds/proj2sound26.wav",   
+  "sounds/proj2sound27.wav",   
+  "sounds/proj2sound28.wav",   
+  "sounds/proj2sound29.wav",   
+  "sounds/proj2sound30.wav"   
 ];
