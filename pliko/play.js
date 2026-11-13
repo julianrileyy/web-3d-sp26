@@ -97,7 +97,7 @@
     $('wheel').style.transform = 'rotate(' + wheelRot + 'deg)';
     setTimeout(function () {
       send({ type: 'spin', n: k });
-      $('result').textContent = k === 0 ? '0 pucks — spin again!' : (k === 1 ? '1 puck!' : k + ' pucks!') + ' 🦋';
+      $('result').textContent = k === 0 ? '0 pucks — spin again!' : (k === 1 ? '1 puck!' : k + ' pucks!') + ' ';
       setTimeout(function () { spinning = false; updateSpin(); }, k * SETTINGS.STAGGER_MS + 900);
     }, 4300);
   });

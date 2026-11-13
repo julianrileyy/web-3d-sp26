@@ -3,7 +3,7 @@
 const SETTINGS = {
   FALL_SECONDS: 8,         // every puck takes this long to fall (make your wav files about this long)
   MILESTONE_EVERY: 15,     // character pop-up after every N pucks dropped (all players together)
-  POPUP_SECONDS: 4,        // how long the pop-up stays on screen
+  POPUP_SECONDS: 3,        // how long the pop-up stays on screen
   STAGGER_MS: 700,         // gap between pucks when the wheel gives someone several
   ID_PREFIX: "bfplinko-",  // leave alone (used to build the game code)
   PEER_OPTIONS: {}         // advanced: leave empty to use the free public PeerJS server
