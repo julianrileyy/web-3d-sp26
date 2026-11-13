@@ -2,7 +2,7 @@
 
 const SETTINGS = {
   FALL_SECONDS: 8,         // every puck takes this long to fall (make your wav files about this long)
-  MILESTONE_EVERY: 15,     // character pop-up after every N pucks dropped (all players together)
+  MILESTONE_EVERY: 20,     // character pop-up after every N pucks dropped (all players together)
   POPUP_SECONDS: 3,        // how long the pop-up stays on screen
   STAGGER_MS: 700,         // gap between pucks when the wheel gives someone several
   ID_PREFIX: "bfplinko-",  // leave alone (used to build the game code)
@@ -10,28 +10,26 @@ const SETTINGS = {
 };
 
 /* -------------------------------------------------------------------
-   13 CHARACTERS
-   name  -> replace "name" with the character's name
-   image -> a square picture in the /images folder. Used on the selection
+
             screen, on the puck, and in the pop-up. (If the file is missing
             a pastel placeholder is shown instead, so nothing breaks.)
    sound -> replace "insert wav" with e.g. "sounds/name1.wav". Played with
-            this character's pop-up every 15 pucks.
+
 ------------------------------------------------------------------- */
 const CHARACTERS = [
-  { name: "MX", image: "images/character1.png",  sound: "insert wav" },  // character 1
-  { name: "JESSIE", image: "images/character2.png",  sound: "insert wav" },  // character 2
-  { name: "ISAIAH", image: "images/character3.png",  sound: "insert wav" },  // character 3
-  { name: "LANDON", image: "images/character4.png",  sound: "insert wav" },  // character 4
-  { name: "JASMINE", image: "images/character5.png",  sound: "insert wav" },  // character 5
-  { name: "CARL", image: "images/character6.png",  sound: "insert wav" },  // character 6
-  { name: "CADEN", image: "images/character7.png",  sound: "insert wav" },  // character 7
-  { name: "JJ", image: "images/character8.png",  sound: "insert wav" },  // character 8
-  { name: "PHLIP", image: "images/character9.png",  sound: "insert wav" },  // character 9
-  { name: "BEN", image: "images/character10.png", sound: "insert wav" },  // character 10
-  { name: "GAVIN", image: "images/character11.png", sound: "insert wav" },  // character 11
-  { name: "JONAH", image: "images/character12.png", sound: "insert wav" },  // character 12
-  { name: "LES", image: "images/character13.png", sound: "insert wav" }   // character 13
+  { name: "MX", image: "images/les.png",  sound: "insert wav" },  // character 1
+  { name: "JESSIE", image: "images/les.png",  sound: "insert wav" },  // character 2
+  { name: "ISAIAH", image: "images/les.png",  sound: "insert wav" },  // character 3
+  { name: "LANDON", image: "images/les.png",  sound: "insert wav" },  // character 4
+  { name: "JASMINE", image: "images/les.png",  sound: "insert wav" },  // character 5
+  { name: "CARL", image: "images/les.png",  sound: "insert wav" },  // character 6
+  { name: "CADEN", image: "images/les.png",  sound: "insert wav" },  // character 7
+  { name: "JJ", image: "images/les.png",  sound: "insert wav" },  // character 8
+  { name: "PHLIP", image: "images/les.png",  sound: "insert wav" },  // character 9
+  { name: "BEN", image: "images/les.png", sound: "insert wav" },  // character 10
+  { name: "GAVIN", image: "images/les.png", sound: "insert wav" },  // character 11
+  { name: "JONAH", image: "images/les.png", sound: "insert wav" },  // character 12
+  { name: "LES", image: "images/les.png", sound: "insert wav" }   // character 13
 ];
 
 
