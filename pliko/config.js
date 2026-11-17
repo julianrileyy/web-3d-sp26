@@ -9,27 +9,20 @@ const SETTINGS = {
   PEER_OPTIONS: {}         // advanced: leave empty to use the free public PeerJS server
 };
 
-/* -------------------------------------------------------------------
-
-            screen, on the puck, and in the pop-up. (If the file is missing
-            a pastel placeholder is shown instead, so nothing breaks.)
-   sound -> replace "insert wav" with e.g. "sounds/name1.wav". Played with
-
-------------------------------------------------------------------- */
 const CHARACTERS = [
   { name: "MX", image: "images/les.png",  sound: "insert wav" },  // character 1
-  { name: "JESSIE", image: "images/les.png",  sound: "insert wav" },  // character 2
-  { name: "ISAIAH", image: "images/les.png",  sound: "insert wav" },  // character 3
-  { name: "LANDON", image: "images/les.png",  sound: "insert wav" },  // character 4
-  { name: "JASMINE", image: "images/les.png",  sound: "insert wav" },  // character 5
-  { name: "CARL", image: "images/les.png",  sound: "insert wav" },  // character 6
+  { name: "JESSIE", image: "images/les2.png",  sound: "insert wav" },  // character 2
+  { name: "ISAIAH", image: "images/les3.png",  sound: "insert wav" },  // character 3
+  { name: "LANDON", image: "images/les4.png",  sound: "insert wav" },  // character 4
+  { name: "JASMINE", image: "images/les5.png",  sound: "insert wav" },  // character 5
+  { name: "CARL", image: "images/les6.png",  sound: "insert wav" },  // character 6
   { name: "CADEN", image: "images/les.png",  sound: "insert wav" },  // character 7
-  { name: "JJ", image: "images/les.png",  sound: "insert wav" },  // character 8
-  { name: "PHLIP", image: "images/les.png",  sound: "insert wav" },  // character 9
-  { name: "BEN", image: "images/les.png", sound: "insert wav" },  // character 10
-  { name: "GAVIN", image: "images/les.png", sound: "insert wav" },  // character 11
-  { name: "JONAH", image: "images/les.png", sound: "insert wav" },  // character 12
-  { name: "LES", image: "images/les.png", sound: "insert wav" }   // character 13
+  { name: "JJ", image: "images/les2.png",  sound: "insert wav" },  // character 8
+  { name: "PHLIP", image: "images/les3.png",  sound: "insert wav" },  // character 9
+  { name: "BEN", image: "images/les4.png", sound: "insert wav" },  // character 10
+  { name: "GAVIN", image: "images/les5.png", sound: "insert wav" },  // character 11
+  { name: "JONAH", image: "images/les6.png", sound: "insert wav" },  // character 12
+  { name: "LES", image: "images/les7.png", sound: "insert wav" }   // character 13
 ];
 
 

@@ -1,6 +1,6 @@
 
 
-/* ---------- board geometry (1 unit = one column width) ---------- */
+
 const GEO = {
   cols: 6, rows: 10,
   rowH: 0.8, firstPegY: 1.5,
@@ -18,7 +18,7 @@ const PASTELS = ['#ffc8dd', '#cdb4db', '#bde0fe', '#b9fbc0', '#fde4cf', '#fbf8cc
 const PEG_COLORS = ['#ff9ec9', '#c9a7ff', '#8ec9ff', '#7fdcae', '#ffc38a'];
 const PUCK_PX = 128;
 
-/* ---------- state ---------- */
+
 const $ = id => document.getElementById(id);
 let S = 60, OX = 0, OY = 0;          // pixels per unit, board offset
 let bg = null;                        // pre-drawn background (board, pegs, flowers)
@@ -34,9 +34,7 @@ const px = x => OX + x * S;
 const py = y => OY + y * S;
 const pegY = r => GEO.firstPegY + r * GEO.rowH;
 
-/* ==========================================================
-   p5 hooks
-   ========================================================== */
+
 function setup() {
   const cnv = createCanvas(windowWidth, windowHeight);
   cnv.style('position', 'fixed');
@@ -76,9 +74,7 @@ function draw() {
   drawParticles();
 }
 
-/* ==========================================================
-   layout + static background
-   ========================================================== */
+
 function layout() {
   S = Math.min(windowHeight * 0.96 / GEO.totalH, windowWidth * 0.6 / GEO.cols);
   OX = (windowWidth - GEO.cols * S) / 2;
@@ -188,7 +184,7 @@ function buildBackground() {
   bg.strokeWeight(Math.max(3, S * 0.05));
   for (let i = 1; i < GEO.cols; i++) bg.line(px(i), py(GEO.slotTop), px(i), py(GEO.slotBottom));
 
-  // pegs = little flowers (10 rows)
+ 
   for (let r = 0; r < GEO.rows; r++) {
     const xs = (r % 2 === 0) ? [0.5, 1.5, 2.5, 3.5, 4.5, 5.5] : [1, 2, 3, 4, 5];
     xs.forEach(function (x, i) {
@@ -205,7 +201,7 @@ function buildBackground() {
   }
 }
 
-/* ---------- character pucks (round pictures) ---------- */
+
 function makeCharGfx(i) {
   const g = createGraphics(PUCK_PX, PUCK_PX);
   g.pixelDensity(1);
@@ -235,9 +231,7 @@ function drawFallbackPuck(g, i) {
   g.text(i + 1, PUCK_PX / 2, PUCK_PX / 2 + 3);
 }
 
-/* ==========================================================
-   butterflies drifting across the screen
-   ========================================================== */
+
 function initButterflies() {
   for (let i = 0; i < 9; i++) {
     butterflies.push({
@@ -264,9 +258,7 @@ function updateButterflies() {
   });
 }
 
-/* ==========================================================
-   pucks: path, position, drawing
-   ========================================================== */
+
 function buildPath() {
   // Pegs: even rows sit at 0.5,1.5..5.5 — odd rows at 1,2..5.
   // The puck lands on a peg, then hops left or right onto a peg in the next row.
@@ -352,9 +344,6 @@ function drawParticles() {
   drawingContext.globalAlpha = 1;
 }
 
-/* ==========================================================
-   dropping pucks
-   ========================================================== */
 function launchPuck(charIdx, owner) {
   totalDropped++;
   if (owner) {
@@ -380,9 +369,7 @@ function dropBatch(p, n) {
   }
 }
 
-/* ==========================================================
-   sound (Web Audio so many sounds can overlap)
-   ========================================================== */
+
 let audioCtx = null;
 const coinBuf = [], nameBuf = [];
 let soundBag = [], lastSound = -1;
@@ -417,7 +404,7 @@ function playBuf(buf) {
   } catch (e) { /* ignore */ }
 }
 
-function nextSoundIndex() {              // shuffled "bag": all sounds play, then reshuffle
+function nextSoundIndex() {              
   if (!soundBag.length) {
     const have = [];
     coinBuf.forEach(function (b, i) { if (b) have.push(i); });
@@ -433,9 +420,7 @@ function nextSoundIndex() {              // shuffled "bag": all sounds play, the
   return lastSound;
 }
 
-/* ==========================================================
-   the 15-puck pop-up
-   ========================================================== */
+
 const popupQueue = [];
 let popupBusy = false;
 
@@ -460,9 +445,7 @@ function nextPopup() {
   }, SETTINGS.POPUP_SECONDS * 1000);
 }
 
-/* ==========================================================
-   player list (top right)
-   ========================================================== */
+
 function renderPlayers() {
   const list = Object.keys(players).map(function (k) { return players[k]; });
   let html = '<div class="ptitle">Players: ' + list.length + ' &nbsp;·&nbsp; Pucks: ' + totalDropped + '</div>';
@@ -473,9 +456,7 @@ function renderPlayers() {
   $('players').innerHTML = html;
 }
 
-/* ==========================================================
-   start button + SPACE bar
-   ========================================================== */
+
 function wireUI() {
   buildCharGrid($('hostGrid'), function (i) { hostChar = i; }, 0);
   $('startBtn').addEventListener('click', onStart);
@@ -499,9 +480,6 @@ function onStart() {
   });
 }
 
-/* ==========================================================
-   phones: PeerJS connection (game code)
-   ========================================================== */
 function setStatus(text, ok) {
   const el = $('status');
   el.textContent = text;
