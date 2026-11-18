@@ -149,7 +149,7 @@ function buildBackground() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, windowWidth, windowHeight);
 
-  // scattered flowers + leaves around the edges (kept off the board)
+  
   const rand = rng(7);
   const boardL = px(-0.4), boardR = px(GEO.cols + 0.4);
   ctx.globalAlpha = 0.75;
@@ -173,7 +173,7 @@ function buildBackground() {
   bg.fill(255, 255, 255, 150);
   bg.rect(fx, fy, fw, fh, S * 0.35);
 
-  // the 6 landing pockets
+
   const SLOT_COLORS = ['#ffc8dd', '#bde0fe', '#fde4cf', '#d9c6f0', '#b9fbc0', '#fbf3b5'];
   bg.noStroke();
   for (let i = 0; i < GEO.cols; i++) {
@@ -195,7 +195,7 @@ function buildBackground() {
     });
   }
 
-  // flower garland along the top edge
+
   for (let i = 0; i < GEO.cols; i++) {
     drawFlower(bg, px(i + 0.5), py(GEO.frameTop), S * 0.17, 6, PASTELS[(i * 3 + 1) % PASTELS.length], '#ffe27a', i);
   }
